@@ -26,9 +26,9 @@ Decisions
  Integrate and test the modules after completion.
 
 Action Items
-Hisham: CPU and instruction execution
+Hisham:Data structures and process management
 Punarvi: Memory and stack
-Keora: Data structures and process management
+Keora: CPU and instruction execution
 Izhan: Scheduling and context switching
 
 Next Meeting
