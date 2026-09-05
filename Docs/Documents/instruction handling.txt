@@ -1,0 +1,19 @@
+Muhammed Hisham M H
+25190130
+
+Study of Instruction Handling and Testing in STC89C52 Microcontroller Simulator
+The STC89C52 microcontroller simulator is a software model which simulates the working of a microcontroller. It uses different instructions to perform operations like data transfer, arithmetic, logical and control flow operations. The instruction handling part is important because the simulator need to identify and process the instructions correctly.
+Instruction Set
+InstructionSet.java is used to manage the instructions which are supported by the simulator. It contains different instructions like MOV, XCH, ADD, SUBB, INC, DEC, ANL, ORL, CLR and SJMP. These instructions are divided into different categories. It also checks weather a given instruction is supported or not. The instruction is taken as text and converted into an Instruction object before it is executed.
+
+Demo Program
+Demo.txt contains a sample program for the simulator. It have different instructions written one by one in the order of execution. The simulator reads this program and execute each instruction. It helps to understand how different instructions works together as a complete program.
+
+Instruction Testing
+InstructionTest.java is used for testing individual instructions separately. It tests instructions like MOV, XCH, ADD, SUBB, INC, DEC, ANL, ORL, CLR and SJMP. Each test gives an expected result and compare it with the actual result from the simulator. If both results are same, the test is passed.
+
+Demo Program Testing
+DemoProgramTest.java is used to test the complete demo program. It loads the program into the simulator and runs all the instructions. After execution, it checks the final values of registers and the program status. This helps to find whether the complete program is working correctly or not.
+
+Overall Working..
+The instruction text is given to the simulator, then the InstructionSet identify the instruction and create the Instruction object. After that the CPU execute the instruction and changes the required register or memory values. The testing files check the results and make sure the instructions is working properly.
