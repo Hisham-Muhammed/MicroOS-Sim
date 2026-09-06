@@ -4,4 +4,4 @@ Week 1 – Decisions
 2. GitHub repository and project structure finalized.
 3. Initial simulator architecture approved.
 4. Team responsibilities assigned.
-5. CPU, memory and GPIO implementation planned for Week 2.
+5. CPU and memory implementation planned for Week 2.
