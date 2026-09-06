@@ -1,0 +1,29 @@
+Week-02 Status Report
+
+
+Planned Work
+
+Implement Java simulator structure, CPU, memory, and instruction execution.
+Create execution trace, console interface, demo program, and tests.
+
+
+Completed Work
+Java simulator structure, CPU, memory, and basic instructions were implemented.
+Instruction fetch, decode, execution, console interface, trace, demo program, and tests were completed.
+Instruction and demo tests passed successfully.
+
+Pending Work
+
+No pending works for Week 2.
+
+Issues
+Complete STC89C52 memory and stack implementation.
+Improve instruction execution and UI visualization.
+
+Individual Work
+Izhan: Console UI and execution trace.
+Keora: CPU and simulator execution.
+Punarvi: Memory and instruction representation.
+Hisham: Instruction set, demo program, testing, and GitHub integration.
+Carried Forward
+No carried forward works for Week 2.
