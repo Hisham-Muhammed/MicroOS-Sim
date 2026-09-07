@@ -24,6 +24,15 @@ javac *.java
 java Main
 ```
 
+## Run the Main Branch
+
+```bash
+git clone -b main https://github.com/Hisham-Muhammed/MicroOS-Sim.git
+cd MicroOS-Sim/src
+javac *.java
+java Main
+```
+
 ## Simulator Commands
 
 ```text
@@ -77,5 +86,17 @@ javac -cp . ../tests/DemoProgramTest.java
 java -cp .:../tests DemoProgramTest
 ```
 
+## Custom Programs
 
+The demo program is stored in the `programs` folder.
 
+You can edit the program file in this folder to change the instructions executed by the simulator.
+
+After editing the program, run the simulator again and use:
+
+```text
+LOAD
+RUN
+```
+
+The simulator will execute the updated program.
