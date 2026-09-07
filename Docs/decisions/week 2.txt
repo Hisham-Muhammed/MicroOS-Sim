@@ -1,0 +1,7 @@
+Week 2 – Decisions
+1.Java-based simulator structure finalized and implemented.
+2.CPU registers, memory, and basic instruction execution approach finalized.
+3.CPU.java, Memory.java, Instruction.java, and InstructionSet.java responsibilities finalized.
+4.Basic instruction set and execution flow finalized.
+5.Console-based simulator interface and execution trace approach finalized.
+6.Testing approach using demo programs and instruction test cases finalized

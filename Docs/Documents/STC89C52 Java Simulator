@@ -1,0 +1,53 @@
+STC89C52 Microcontroller Architecture Study 
+
+Keora Pais (25190118)
+
+Java stimulator 
+
+Introduction
+This is a Java program that simulates a simple STC89C52/8051-style CPU. It helps students understand how a CPU runs assembly instructions.
+
+Main Features
+Simulates registers, memory and basic flags.
+Runs simple assembly-like instructions.
+Supports step-by-step and full execution.
+Shows the Fetch–Decode–Execute process.
+
+Main Parts
+CPU stores registers and flags. Memory stores program and data. Instruction and InstructionSet handle commands. Simulator controls the whole program
+
+Registers
+A, B and R0–R7 are 8-bit registers. PC stores the next instruction. SP is the stack pointer. CY is the carry flag and Z shows whether A is zero.
+
+How It Works
+FETCH → DECODE → EXECUTE
+The simulator gets an instruction, understands it, executes it, and then moves to the next instruction.
+
+Instructions
+MOV – move data
+XCH – swap values
+ADD / SUBB – arithmetic
+ANL / ORL – logic operations
+INC / DEC – increase or decrease
+SJMP – jump
+CLR – clear A
+END – stop the program
+
+Example
+MOV A,#05
+MOV R0,#03
+XCH A,R0
+ADD A,#03
+END
+The simulator changes the CPU values as each instruction runs.
+
+Testing
+The project has tests for the main instructions and a complete demo program. Example: MOV A,#05 followed by ADD A,#03 should give A = 08.
+
+Limitations
+This is only a basic educational simulator. It does not fully reproduce real STC89C52 hardware, I/O, timers, interrupts or all 8051 
+instructions.
+
+Conclusion
+The project gives a simple introduction to CPU registers, memory and instruction execution.
+FETCH → DECODE → EXECUTE
