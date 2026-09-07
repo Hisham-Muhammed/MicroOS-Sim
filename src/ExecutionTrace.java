@@ -22,6 +22,10 @@ public class ExecutionTrace {
         trace.append("EXECUTE ✓\n");
     }
 
+    public void addMessage(String message) {
+        trace.append(message).append("\n");
+    }
+
     public String getTrace() {
         return trace.toString();
     }
