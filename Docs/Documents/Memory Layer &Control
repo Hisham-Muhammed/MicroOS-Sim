@@ -1,0 +1,73 @@
+ Week 2 Documentation
+
+Team Member: Punarvi
+Memory Layer & Control
+
+ 1. Memory Layer
+I worked on the memory part of the microcontroller simulator using Java.
+I used an Array to store the memory values and program instructions. The Memory class contains two types of memory:
+
+Data Memory: Stores data values.
+Program Memory: Stores the instructions of the program.
+
+The data memory has 256 locations and the program memory also has 256 locations.
+The memory can be reset using the `reset()` method. This clears the stored data and instructions.
+The readData() and writeData() methods are used to read and store data in memory.
+Te readInstruction() and writeInstruction() methods are used to read and store program instructions.
+
+2. Instruction Representation
+
+The Instruction class is used to store information about an instruction.
+It contains:
+* Instruction name
+*  Operand
+* Category
+
+The getFullInstruction() method displays the complete instruction with its operand.
+For example:
+MOV A, 10
+The `toString()` method is also used to display the instruction easily.
+
+ 3. Instructions Implemented
+As my assigned task, I worked on four instructions:
+
+MOV
+MOV is used to transfer data from one place to another.
+Category: Data Transfer
+Operand: Register/Data
+Operation: Moves the given value to the required location.
+Flags: No flags are affected.
+
+STORE
+STORE is used to save a value into memory.
+Category: Data Transfer
+Operand: Memory address
+Operation: Stores the value in the specified memory location.
+Flags: No flags are affected.
+
+JMP
+JMP is used to change the program flow.
+Category: Control Flow
+Operand: Address
+Operation: Changes the Program Counter to the given address.
+Flags: No flags are affected.
+
+HALT
+HALT is used to stop the program.
+Category: Program Termination
+Operand: None
+Operation: Stops the execution of the program.
+Flags: No flags are affected.
+
+4. Java Classes Used
+Instruction.java
+The Instruction class stores the name, operand and category of an instruction.
+ Memory.java
+The Memory class manages the data memory and program memory. It also provides methods to read, write and reset the memory.
+
+5. Result
+The memory part of the simulator was implemented using Java arrays.
+Program instructions can be stored and accessed through program memory. 
+The instruction class also makes it easier to represent and display instructions.
+
+This completes my Week 2 work for the Memory Layer & Control part of the project.
