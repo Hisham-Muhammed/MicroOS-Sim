@@ -1,30 +1,52 @@
 # STC89C52 Microcontroller Simulator – Week 2
 
-## Run in VS Code
+## Overview
 
-### 1. Clone the Week-2 branch
+Week 2 focuses on the basic STC89C52 CPU simulation and a simple interactive simulator interface. The simulator allows a user to enter assembly instructions, load them, execute them step-by-step or run them continuously, reset the CPU state, and observe register/flag changes and the execution trace.
 
-```bash
-git clone -b week-2 https://github.com/Hisham-Muhammed/MicroOS-Sim.git
+## Current UI
+
+The current ONCHI-BYTE interface contains:
+
+- **Program Editor** – enter or edit assembly instructions.
+- **LOAD** – loads the program and resets the CPU state for execution.
+- **RESET** – clears the execution state and returns the simulator to Ready.
+- **STEP** – executes one instruction and shows FETCH → DECODE → EXECUTE details.
+- **RUN** – executes the loaded program automatically.
+- **CPU State** – displays A, B, R0–R7, PC, SP, Carry Flag and Zero Flag.
+- **Execution Trace** – shows the current instruction and execution result.
+- **Day / Light Mode** – switches between the dark and light interface themes.
+
+## Supported Instructions
+
+The Week 2 simulator currently demonstrates instructions including:
+
+```text
+MOV
+ADD
+SUBB
+ANL
+INC
+CLR
+SJMP
+END
 ```
 
-### 2. Open the project
+## Demo Program
 
-```bash
-cd MicroOS-Sim
+```text
+MOV A,#05
+MOV R0,#03
+ADD A,#03
+INC A
+ANL A,#0F
+SUBB A,#02
+END
 ```
 
-Open the folder in VS Code.
+## How to Run
 
-### 3. Compile and run
-
-```bash
-cd src
-javac *.java
-java Main
-```
-
-## Run the Main Branch
+The web UI can be opened directly from the testing repository. For the Java simulator in the main project:
 
 ```bash
 git clone -b main https://github.com/Hisham-Muhammed/MicroOS-Sim.git
@@ -33,70 +55,23 @@ javac *.java
 java Main
 ```
 
-## Simulator Commands
+## UI States
 
-```text
-LOAD
-STEP
-RUN
-SHOW
-RESET
-HELP
-EXIT
-```
+### 1. Initial / Dark Mode
+![Initial Dark Mode](images/01_INITIAL_DARK.png)
 
-- `LOAD` – Load the demo program.
-- `STEP` – Execute one instruction at a time.
-- `RUN` – Run the loaded program.
-- `SHOW` – Display the current simulator state.
-- `RESET` – Reset the simulator.
-- `HELP` – Display available commands.
-- `EXIT` – Exit the simulator.
+### 2. Light Mode
+![Light Mode](images/02_LIGHT_MODE.png)
 
+### 3. Program Loaded
+![Program Loaded](images/03_PROGRAM_LOADED.png)
 
-## Simulator States
+### 4. Step Execution
+![Step Execution](images/04_STEP_EXECUTION.png)
 
-### HELP
-![HELP](images/01_HELP.png)
+### 5. Run Complete
+![Run Complete](images/05_RUN_COMPLETE.png)
 
-### LOAD
-![LOAD](images/03_LOAD.png)
+### 6. Reset
+![Reset](images/06_RESET.png)
 
-### STEP
-![STEP](images/04_STEP.png)
-
-### RUN
-![RUN](images/05_RUN_COMPLETE.png)
-
-### RESET
-![RESET](images/06_RESET.png)
-
-### Wrong Command
-![Wrong Command](images/07_WRONG_COMMAND.png)
-
-## Testing
-
-From the `src` folder:
-
-```bash
-javac -cp . ../tests/InstructionTest.java
-java -cp .:../tests InstructionTest
-
-javac -cp . ../tests/DemoProgramTest.java
-java -cp .:../tests DemoProgramTest
-```
-
-## Custom Programs
-
-The demo program is stored in the `programs` folder.
-
-You can edit the program file in this folder to change the instructions executed by the simulator.
-
-After editing the program, run the simulator again and use:
-
-```text
-LOAD
-RUN
-```
-
-The simulator will execute the updated program.
