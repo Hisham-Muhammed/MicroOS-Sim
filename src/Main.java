@@ -90,27 +90,28 @@ public class Main {
         traceArea = createOutputArea();
         cpuArea = createOutputArea();
 
+        // Keep the editor clean: show a short example using both Week-2
+        // and Week-3 instructions. Users can enter any supported instruction.
         sourceEditor.setText(
-            "MOV A,#02\n" +
-            "MOV R0,#04\n" +
-            "XCH A,R0\n" +
-            "ADD A,#03\n" +
-            "INC A\n" +
-            "DEC A\n" +
-            "ANL A,#0F\n" +
-            "ORL A,#01\n" +
-            "SJMP 1\n" +
-            "INC A\n" +
-            "CLR A\n" +
+            "MOV A,#10\n" +
+            "MOV R0,#20\n" +
+            "ADD A,R0\n" +
+            "PUSH A\n" +
+            "POP R1\n" +
+            "ENQUEUE #10\n" +
+            "ENQUEUE #20\n" +
+            "DEQUEUE R2\n" +
             "END"
         );
 
+        // Week-2-style three-panel layout. The right panel is the single
+        // CPU STATE view; SP, Stack and FIFO status remain part of that state.
         center = new JPanel(
             new GridLayout(
                 1,
                 3,
                 12,
-                0
+                12
             )
         );
 
@@ -118,7 +119,7 @@ public class Main {
 
         center.add(
             createPanel(
-                "ASSEMBLY PROGRAM",
+                "ASSEMBLY PROGRAM  •  WEEK 2 + WEEK 3",
                 new JScrollPane(sourceEditor)
             )
         );
@@ -242,7 +243,6 @@ public class Main {
         right.setOpaque(false);
 
         JLabel chip = badge("●  8-BIT CPU");
-        JLabel team = badge("ONJI BYTE");
 
         JButton mode = new JButton("☀ / ☾");
 
@@ -267,7 +267,6 @@ public class Main {
         );
 
         right.add(chip);
-        right.add(team);
         right.add(mode);
 
         panel.add(
@@ -1117,6 +1116,11 @@ public class Main {
             simulator
                 .getCPU()
                 .getState()
+                + "\n"
+                + "────────────────────────────\n"
+                + simulator.getStack().getState()
+                + "\n"
+                + simulator.getQueue().getState()
         );
 
         Instruction instruction =
