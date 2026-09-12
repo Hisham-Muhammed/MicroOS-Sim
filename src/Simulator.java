@@ -67,6 +67,11 @@ public class Simulator {
 
         executionTrace.append("EXECUTE ✓\n");
 
+        // Clear the previous instruction's error/status before executing
+        // the current instruction. Otherwise a successful instruction
+        // could still display an old error message.
+        executionStatus = "Running";
+
         try {
             switch (name) {
 
@@ -235,20 +240,30 @@ public class Simulator {
         cpu.setRegister(registerNumber, oldA);
     }
 
-    // ADD A,#data
+    // ADD A,#data or ADD A,Rn
     private void executeADD(String operand) {
 
-        if (!operand.toUpperCase().startsWith("A,#")) {
+        String[] parts = operand.split(",");
+
+        if (parts.length != 2
+                || !parts[0].trim().equalsIgnoreCase("A")) {
             throw new IllegalArgumentException(
                     "Invalid ADD instruction");
         }
 
-        int value =
-                parseValue(
-                        operand.substring(3).trim());
+        String source = parts[1].trim().toUpperCase();
+        int value;
 
-        int result =
-                cpu.getA() + value;
+        if (source.startsWith("#")) {
+            value = parseValue(source);
+        } else if (isRegister(source)) {
+            value = cpu.getRegister(registerNumber(source));
+        } else {
+            throw new IllegalArgumentException(
+                    "ADD supports A,#data or A,R0-R7");
+        }
+
+        int result = cpu.getA() + value;
 
         cpu.setCarryFlag(result > 255);
 
