@@ -183,3 +183,80 @@ The project will be developed step by step in the coming weeks.
 **Currently in the Initial Development / Planning Stage.**
 
 More features and implementation details will be added as development progresses.
+
+---
+
+# Week 3 – Enhancing Simulator Functionality
+
+Week 3 extends the existing simulator with **Memory, Stack and FIFO Queue** functionality. Existing Week 2 functionality is retained and only the required new functionality is added.
+
+## Week 3 Responsibilities
+
+- **Punarvi:** Memory Read/Write and Memory integration.
+- **Keora:** Stack Pointer (SP), PUSH/POP and Stack integration.
+- **Hisham:** FIFO Queue, ENQUEUE/DEQUEUE and Assembly validation.
+- **Izhan:** Queue flowchart, testing, output screenshots and documentation integration.
+
+## New Instructions
+
+### PUSH
+Adds a value to the top of the Stack and updates the Stack Pointer (SP).
+
+Example:
+
+```text
+PUSH 25
+```
+
+### POP
+Removes/retrieves the value from the top of the Stack and updates SP.
+
+Example:
+
+```text
+POP
+```
+
+### ENQUEUE
+Adds a value to the rear of the FIFO Queue.
+
+Example:
+
+```text
+ENQUEUE 10
+ENQUEUE 20
+ENQUEUE 30
+```
+
+Queue order:
+
+```text
+Front → [10] [20] [30] ← Rear
+```
+
+### DEQUEUE
+Removes the value from the front of the FIFO Queue.
+
+For the queue above:
+
+```text
+DEQUEUE → 10
+DEQUEUE → 20
+DEQUEUE → 30
+```
+
+This verifies FIFO (First-In, First-Out) behaviour.
+
+## How Week 3 Instructions Execute
+
+The user enters the Assembly/program instructions in the simulator source editor and runs the program. The simulator parses the instructions, sends them through the CPU/simulator execution flow, updates the relevant Memory/Stack/Queue state, and displays the result in the UI and execution trace.
+
+Detailed examples and output screenshots are maintained in the Week 3 documentation.
+
+## Documentation
+
+See [`Docs/README.md`](Docs/README.md) for the purpose of the project files. Meeting records, weekly status reports and technical decisions are maintained under `Docs/Meeting/`, `Docs/weekly-status/` and `Docs/decisions/`.
+
+## Week 3 Validation
+
+The Week 3 Queue validation program is available at `programs/week3_queue_validation.txt`. It is used to demonstrate multiple Enqueue/Dequeue operations and verify the expected FIFO ordering against the simulator's actual result.
