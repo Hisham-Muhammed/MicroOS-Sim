@@ -1,0 +1,12 @@
+; STC89C52 Week 3 FIFO Queue Validation
+; Expected: R0=10, R1=20, R2=30 after three dequeues.
+MOV A,#10
+ENQUEUE A
+MOV A,#20
+ENQUEUE A
+MOV A,#30
+ENQUEUE A
+DEQUEUE R0
+DEQUEUE R1
+DEQUEUE R2
+END

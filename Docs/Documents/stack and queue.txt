@@ -1,0 +1,19 @@
+Muhammed Hisham M H
+25190130
+
+Study of Stack and Queue
+
+Stack
+
+Stack is a data structure which stores data in a particular order. It follows LIFO (Last In First Out) method. This means the data which is inserted last will be removed first. A simple example is a stack of books, where the last book placed on top is taken first.
+The main operations of stack are Push and Pop. Push is used to add a new data into the stack. Pop is used to remove the top data from the stack. The stack also have a top position which shows the current top element.
+In MicroOS Simulator, stack is used for storing temporary data during execution. The Stack Pointer helps to keep track of the stack position.
+
+Queue
+
+Queue is another data structure which follows FIFO (First In First Out) method. The data which is inserted first will be removed first. It works similar to a normal waiting queue.
+The main operations are Enqueue and Dequeue. Enqueue is used to add data into the queue and Dequeue is used to remove data from the queue. New data is added at the rear and data is removed from the front.
+
+Overall Working
+
+Stack and Queue both are used to store and manage data, but their working is different. Stack follows LIFO while Queue follows FIFO. These structures are useful in the MicroOS Simulator for handling data in proper order during execution.

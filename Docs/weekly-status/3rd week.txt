@@ -1,0 +1,31 @@
+WEEK 3 STATUS REPORT
+
+Planned Work
+
+Enhance the existing Week 2 simulator with Memory Read/Write, Stack Pointer (SP), PUSH/POP and FIFO Queue functionality.
+Prepare Queue flowchart, processor-specific Assembly validation, expected vs actual results, test cases and updated documentation.
+
+Completed Work
+
+Memory Read/Write functionality was added and connected to the simulator.
+Stack Pointer, PUSH and POP functionality was added.
+FIFO Queue functionality with ENQUEUE and DEQUEUE was added.
+The simulator UI was extended to show the new Memory, Stack and Queue information.
+Week 3 instruction examples and output screenshots were prepared.
+
+Pending Work
+
+no pending work for week 3
+
+Issues
+
+The new modules must be tested together with the existing Week 2 instruction execution to avoid regressions.
+Assembly validation must be checked against the expected FIFO order.
+
+Individual Work
+
+Punarvi: Memory Read/Write and integration.
+Keora: Stack Pointer, PUSH/POP and Stack integration.
+Hisham: FIFO Queue, ENQUEUE/DEQUEUE and Assembly validation.
+Izhan: Queue flowchart, testing, screenshots and documentation integration.
+
