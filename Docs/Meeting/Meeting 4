@@ -1,0 +1,42 @@
+MINUTES OF MEETING – WEEK 3
+
+Date: 8 September 2026
+Meeting No.: 4
+
+Participants
+
+Izhan, Hisham, Keora, Punarvi
+
+Agenda
+
+Discuss Week 3 requirements and divide the new implementation work.
+Review the Week 2 simulator and avoid redoing completed work.
+Plan Memory, Stack, FIFO Queue, validation, testing and documentation.
+
+Discussion
+
+The team reviewed the Week 3 requirement to enhance the existing Week 2 simulator with Memory, Stack and FIFO Queue functionality.
+The team agreed that completed Week 2 functionality should not be rewritten unnecessarily.
+Memory will be extended with Read/Write operations and integrated with the simulator.
+Stack work will focus on Stack Pointer (SP), PUSH and POP operations.
+A FIFO Queue will be added with ENQUEUE and DEQUEUE operations, including empty/full handling.
+A Queue flowchart, processor-specific Assembly validation program, expected/actual results and test documentation will also be prepared.
+
+Decisions
+
+1. Keep the existing Week 2 implementation and add only the required Week 3 functionality.
+2. Use `Queue.java` as the new FIFO Queue module.
+3. Integrate the new modules with the existing CPU and UI instead of creating a separate simulator.
+4. Document the four new Week 3 instructions: PUSH, POP, ENQUEUE and DEQUEUE with examples and outputs.
+5. Maintain Week 3 test cases and validation results in the Docs folder.
+
+Action Items
+
+Punarvi: Memory Read/Write and Memory integration.
+Keora: Stack Pointer, PUSH/POP and Stack integration.
+Hisham: FIFO Queue, ENQUEUE/DEQUEUE and Assembly validation.
+Izhan: Queue flowchart, test documentation, output collection and final documentation integration.
+
+Next Meeting
+
+Review the completed modules, integrate all Week 3 changes and perform final testing.
