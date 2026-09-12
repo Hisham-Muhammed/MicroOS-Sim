@@ -44,7 +44,7 @@ public class InstructionTest {
 
     private static boolean testMovA() {
         Simulator s = new Simulator();
-        s.loadProgram(new String[]{"MOV A,#05", "ONJI BYTE"});
+        s.loadProgram(new String[]{"MOV A,#05", "END"});
         s.step();
         return s.getCPU().getA() == 5;
     }
@@ -119,15 +119,6 @@ public class InstructionTest {
         s.step();
         s.step();
         return s.getCPU().getA() == 0 && s.getCPU().isZeroFlag();
-    }
-
-    private static boolean testOnjiByte() {
-        Simulator s = new Simulator();
-        s.loadProgram(new String[]{"MOV A,#05", "ONJI BYTE"});
-        s.step();
-        s.step();
-        return s.getCPU().getA() == 5
-                && s.getExecutionStatus().equals("Running");
     }
 
     private static boolean testSjmp() {

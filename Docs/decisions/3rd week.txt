@@ -1,0 +1,12 @@
+Week 3 – Decisions
+
+1. Week 2 completed functionality will be retained; only the new Week 3 requirements will be added or modified.
+2. Memory will support basic Read and Write operations and will be integrated with the existing simulator.
+3. Stack functionality will use a Stack Pointer (SP) and support PUSH and POP operations.
+4. FIFO Queue functionality will be implemented with ENQUEUE and DEQUEUE operations.
+5. Queue must follow First-In, First-Out (FIFO) behaviour and handle empty/full conditions.
+6. `Queue.java` will be used as the dedicated Queue module.
+7. The existing `Main.java` UI will be extended to display Memory, Stack/SP and Queue status.
+8. Week 3 validation will include a processor-specific Assembly program with multiple Enqueue/Dequeue operations and expected vs actual results.
+9. The four new simulator instructions will be documented with their purpose, execution method, examples and output screenshots.
+10. Week 3 test cases and documentation will be kept inside the `Docs` folder.
