@@ -27,14 +27,17 @@ public class InstructionSet {
         instructionCategories.put("SJMP", "Control Flow");
 
 
-        // Program Termination
-        instructionCategories.put("END", "Program Termination");
 
-        // Week 3: Stack and FIFO Queue
+        // Stack
         instructionCategories.put("PUSH", "Stack");
         instructionCategories.put("POP", "Stack");
+
+        // FIFO Queue
         instructionCategories.put("ENQUEUE", "FIFO Queue");
         instructionCategories.put("DEQUEUE", "FIFO Queue");
+
+        // Program Termination
+        instructionCategories.put("END", "Program Termination");
     }
 
     public boolean isSupported(String instruction) {

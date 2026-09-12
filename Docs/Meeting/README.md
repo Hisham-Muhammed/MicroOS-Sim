@@ -1,17 +1,12 @@
-# Meeting Records
+# Meetings
 
-This folder contains the project's meeting minutes and action items.
+This folder contains the minutes and records of project meetings.
 
-Each meeting record may include:
+Meeting records may include:
 - Date
-- Meeting number
 - Participants
 - Agenda
 - Discussion
 - Decisions
-- Action items
-- Next meeting
-
-## Week 3
-
-`Meeting 4` records the Week 3 planning discussion, responsibility split and integration decisions.
+- Action Items
+- Next Meeting
