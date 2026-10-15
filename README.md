@@ -183,3 +183,8 @@ The project will be developed step by step in the coming weeks.
 **Currently in the Initial Development / Planning Stage.**
 
 More features and implementation details will be added as development progresses.
+
+
+## Week 4 Windows IPC
+
+Week 4 uses Java TCP Socket IPC instead of POSIX FIFO pipes, so the separate UI, Core, and Logging processes can run on Windows. See `src/week4/ui/README.md` for compile and launch commands.

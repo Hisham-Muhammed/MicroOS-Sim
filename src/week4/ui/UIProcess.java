@@ -1,7 +1,7 @@
 package week4.ui;
 
 import week4.ipc.FifoConfig;
-import week4.ipc.FifoUtil;
+import java.net.Socket;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -36,6 +36,7 @@ public final class UIProcess {
     private boolean darkMode = true;
     private BufferedWriter coreWriter;
     private BufferedReader coreReader;
+    private Socket coreSocket;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new UIProcess().start());
@@ -43,8 +44,6 @@ public final class UIProcess {
 
     private void start() {
         try {
-            FifoUtil.ensureFifo(FifoConfig.UI_TO_CORE);
-            FifoUtil.ensureFifo(FifoConfig.CORE_TO_UI);
             connectToCore();
             buildUI();
             request("SHOW");
@@ -57,10 +56,11 @@ public final class UIProcess {
     }
 
     private void connectToCore() throws IOException {
+        coreSocket = new Socket(FifoConfig.HOST, FifoConfig.UI_CORE_PORT);
         coreWriter = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(FifoConfig.UI_TO_CORE), StandardCharsets.UTF_8));
+                coreSocket.getOutputStream(), StandardCharsets.UTF_8));
         coreReader = new BufferedReader(new InputStreamReader(
-                new FileInputStream(FifoConfig.CORE_TO_UI), StandardCharsets.UTF_8));
+                coreSocket.getInputStream(), StandardCharsets.UTF_8));
     }
 
     private void buildUI() {
@@ -264,7 +264,7 @@ public final class UIProcess {
     private void readAndDisplayResponse() throws IOException {
         String response = coreReader.readLine();
         if (response == null) {
-            throw new EOFException("Core closed the response FIFO.");
+            throw new EOFException("Core closed the socket connection.");
         }
 
         response = response.replace("\\n", "\n");
@@ -310,6 +310,7 @@ public final class UIProcess {
     private void close() {
         try { if (coreWriter != null) coreWriter.close(); } catch (IOException ignored) {}
         try { if (coreReader != null) coreReader.close(); } catch (IOException ignored) {}
+        try { if (coreSocket != null) coreSocket.close(); } catch (IOException ignored) {}
     }
 
     private void styleButton(JButton button, Color base) {

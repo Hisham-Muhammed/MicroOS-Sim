@@ -1,39 +1,29 @@
- Week 4 - UI Process
+# Week 4 UI Process — Java TCP Socket IPC
 
- Overview
-The UI Process is a separate process in the MicroOS-Sim project. It communicates with the Core Process using POSIX FIFO Named Pipes.
+The UI runs as a separate Java process and communicates with `week4.core.CoreProcess` using Java TCP sockets. It does not directly call CPU, Memory, Stack, Queue, Simulator, or Logger classes.
 
-FIFO Communication
-UI to Core: /tmp/microos_ui_to_core.fifo
-Core to UI: /tmp/microos_core_to_ui.fifo
+## Windows / VS Code
 
-Commands
+Open PowerShell in the repository root (`MicroOS-Sim-week-4`) and compile:
 
-The UI supports the following commands:
+```powershell
+javac -d out src\*.java src\week4\ipc\*.java src\week4\core\*.java src\week4\logging\*.java src\week4\ui\*.java
+```
 
- LOAD: Load a program.
- STEP: Execute one instruction.
- RUN: Execute the program.
- RESET: Reset the simulator.
- SHOW: Display the current status.
- EXIT: Exit the UI process.
+Run each process in a separate terminal, in this order:
 
-Working
-1. The user enters a command in the UI.
-2. The UI sends the command to the Core through the first FIFO.
-3. The Core processes the command.
-4. The Core sends a response through the second FIFO.
-5. The UI displays the response.
+```powershell
+java -cp out week4.logging.LoggingProcess
+```
 
-Technologies
- Java
- POSIX FIFO Named Pipes
- BufferedReader
- BufferedWriter
+```powershell
+java -cp out week4.core.CoreProcess
+```
 
-Testing
-The UI can be tested independently using a temporary FIFO test peer before integration with the actual Core Process.
+```powershell
+java -cp out week4.ui.UIProcess
+```
 
-Architecture
-UI Process ->Core Process -> CPU / Memory / Stack / Queue -> Logging Process
-The UI and Core communicate through two FIFO named pipes.
+Core listens on `127.0.0.1:5051` for the UI. Logging listens on `127.0.0.1:5052` for messages from Core. Allow Java through Windows Firewall for local loopback if prompted.
+
+Commands supported by the UI include LOAD, STEP, RUN, RESET, SHOW, and EXIT. Existing Week 1–3 source files remain in `src/`; Week 4 code remains under `src/week4/`.

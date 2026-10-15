@@ -1,7 +1,9 @@
 package week4.core;
 
 import week4.ipc.FifoConfig;
-import week4.ipc.FifoUtil;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.InetSocketAddress;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -19,6 +21,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 public final class CoreProcess {
     private final SimulatorAdapter simulator;
     private BufferedWriter uiWriter;
+    private Socket uiSocket;
+    private Socket logSocket;
     private final BlockingQueue<String> logQueue = new LinkedBlockingQueue<>();
     private volatile boolean logSenderRunning = true;
     private Thread logSenderThread;
@@ -32,39 +36,30 @@ public final class CoreProcess {
     }
 
     private void start() {
-        System.out.println("Week 4 Core Process");
-        System.out.println("UI -> Core: " + FifoConfig.UI_TO_CORE);
-        System.out.println("Core -> UI: " + FifoConfig.CORE_TO_UI);
-        System.out.println("Core -> Log: " + FifoConfig.CORE_TO_LOG);
+        System.out.println("Week 4 Core Process (TCP Socket IPC)");
+        System.out.println("UI <-> Core port: " + FifoConfig.UI_CORE_PORT);
+        System.out.println("Core -> Logging port: " + FifoConfig.CORE_LOG_PORT);
+        startLogSender();
 
-        try {
-            FifoUtil.ensureFifo(FifoConfig.UI_TO_CORE);
-            FifoUtil.ensureFifo(FifoConfig.CORE_TO_UI);
-            FifoUtil.ensureFifo(FifoConfig.CORE_TO_LOG);
+        try (ServerSocket server = new ServerSocket()) {
+            server.setReuseAddress(true);
+            server.bind(new InetSocketAddress(FifoConfig.UI_CORE_PORT));
+            System.out.println("Waiting for UI Process on port " + FifoConfig.UI_CORE_PORT + "...");
+            uiSocket = server.accept();
+            System.out.println("UI Process connected: " + uiSocket.getRemoteSocketAddress());
 
-            startLogSender();
-
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(
-                            new FileInputStream(FifoConfig.UI_TO_CORE),
-                            StandardCharsets.UTF_8));
-                 BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(
-                            new FileOutputStream(FifoConfig.CORE_TO_UI),
-                            StandardCharsets.UTF_8))) {
-
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                        uiSocket.getInputStream(), StandardCharsets.UTF_8));
+                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                        uiSocket.getOutputStream(), StandardCharsets.UTF_8))) {
                 uiWriter = writer;
-                log("INFO", "Core process connected");
-
+                log("INFO", "Core process connected to UI");
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (line.equalsIgnoreCase("LOAD")) {
                         handleLoad(reader);
-                    } else {
-                        boolean keepRunning = handleCommand(line.trim());
-                        if (!keepRunning) {
-                            break;
-                        }
+                    } else if (!handleCommand(line.trim())) {
+                        break;
                     }
                 }
             }
@@ -78,6 +73,7 @@ public final class CoreProcess {
                 try { logSenderThread.join(2000); }
                 catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             }
+            try { if (uiSocket != null) uiSocket.close(); } catch (IOException ignored) {}
         }
     }
 
@@ -212,31 +208,44 @@ public final class CoreProcess {
 
     private void startLogSender() {
         Thread thread = new Thread(() -> {
-            try (BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(
-                            new FileOutputStream(FifoConfig.CORE_TO_LOG),
-                            StandardCharsets.UTF_8))) {
-
-                while (logSenderRunning || !logQueue.isEmpty()) {
-                    String message = logQueue.poll();
-                    if (message == null) {
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
+            try {
+                Socket socket = null;
+                for (int i = 0; i < 30 && socket == null; i++) {
+                    try { socket = new Socket(FifoConfig.HOST, FifoConfig.CORE_LOG_PORT); }
+                    catch (IOException e) {
+                        try { Thread.sleep(500); }
+                        catch (InterruptedException interrupted) {
                             Thread.currentThread().interrupt();
-                            break;
+                            return;
                         }
-                        continue;
                     }
-                    writer.write(message);
-                    writer.newLine();
-                    writer.flush();
-                    if ("EXIT".equals(message)) {
-                        break;
+                }
+                if (socket == null) {
+                    System.err.println("Logging process unavailable on port " + FifoConfig.CORE_LOG_PORT);
+                    return;
+                }
+                logSocket = socket;
+                try (Socket connected = socket;
+                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                             connected.getOutputStream(), StandardCharsets.UTF_8))) {
+                    while (logSenderRunning || !logQueue.isEmpty()) {
+                        String message = logQueue.poll();
+                        if (message == null) {
+                            try { Thread.sleep(10); }
+                            catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                                break;
+                            }
+                            continue;
+                        }
+                        writer.write(message);
+                        writer.newLine();
+                        writer.flush();
+                        if ("EXIT".equals(message)) break;
                     }
                 }
             } catch (Exception e) {
-                System.err.println("Log FIFO unavailable: " + e.getMessage());
+                System.err.println("Log socket unavailable: " + e.getMessage());
             }
         }, "week4-core-log-sender");
         thread.setDaemon(true);
