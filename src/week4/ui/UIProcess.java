@@ -34,6 +34,7 @@ public final class UIProcess {
     private JLabel pcLabel;
     private JLabel titleLabel;
     private boolean darkMode = true;
+    private boolean programLoaded = false;
     private BufferedWriter coreWriter;
     private BufferedReader coreReader;
     private Socket coreSocket;
@@ -203,8 +204,8 @@ public final class UIProcess {
         buttons.add(load); buttons.add(reset); buttons.add(step); buttons.add(run);
         load.addActionListener(e -> loadProgram());
         reset.addActionListener(e -> request("RESET"));
-        step.addActionListener(e -> request("STEP"));
-        run.addActionListener(e -> request("RUN"));
+        step.addActionListener(e -> runOnlyIfLoaded("STEP"));
+        run.addActionListener(e -> runOnlyIfLoaded("RUN"));
 
         JPanel info = new JPanel(new GridLayout(2, 1));
         info.setOpaque(false);
@@ -228,7 +229,14 @@ public final class UIProcess {
     }
 
     private void loadProgram() {
-        String[] lines = sourceEditor.getText().split("\\R");
+        String source = sourceEditor.getText().trim();
+        if (source.isEmpty()) {
+            JOptionPane.showMessageDialog(frame,
+                    "Please enter a program before clicking LOAD.",
+                    "No Program", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        String[] lines = source.split("\\R");
         try {
             coreWriter.write("LOAD");
             coreWriter.newLine();
@@ -243,10 +251,27 @@ public final class UIProcess {
             coreWriter.write("END_LOAD");
             coreWriter.newLine();
             coreWriter.flush();
-            readAndDisplayResponse();
+            String response = readAndDisplayResponse();
+            programLoaded = response != null && response.startsWith("OK|");
+            if (programLoaded) {
+                JOptionPane.showMessageDialog(frame,
+                        "Program loaded successfully! You can now use STEP or RUN.",
+                        "LOAD Successful", JOptionPane.INFORMATION_MESSAGE);
+            }
         } catch (IOException e) {
+            programLoaded = false;
             showError("LOAD failed: " + e.getMessage());
         }
+    }
+
+    private void runOnlyIfLoaded(String command) {
+        if (!programLoaded) {
+            JOptionPane.showMessageDialog(frame,
+                    "Please LOAD a program first, then use " + command + ".",
+                    "Load Program First", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        request(command);
     }
 
     private void request(String command) {
@@ -261,7 +286,7 @@ public final class UIProcess {
         }
     }
 
-    private void readAndDisplayResponse() throws IOException {
+    private String readAndDisplayResponse() throws IOException {
         String response = coreReader.readLine();
         if (response == null) {
             throw new EOFException("Core closed the socket connection.");
@@ -284,6 +309,7 @@ public final class UIProcess {
             statusLabel.setText("● ERROR");
             traceArea.setText(response.substring(6));
         }
+        return response;
     }
 
     private void displayStatus(String status) {

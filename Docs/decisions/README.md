@@ -1,18 +1,6 @@
 # Project Decisions
 
-This folder contains important technical and project decisions.
+This folder records project decisions by week.
 
-Each decision record can include:
-- Problem
-- Available options
-- Discussion
-- Final decision
-- Responsible member
-
-## Available Decisions
-
-- `1st week.txt`
-- `week 2.txt`
-- `week 3.txt`
-
-Week 3 decisions cover the Memory, Stack, FIFO Queue, UI integration, validation and documentation approach.
+- Week 1–3 decision files are retained.
+- `Week 4 Decisions.txt` contains the complete Week 4 decision history in one file.

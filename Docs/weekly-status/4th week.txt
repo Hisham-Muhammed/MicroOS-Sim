@@ -1,0 +1,39 @@
+WEEK 4 STATUS REPORT
+
+Reporting Date: 15 October 2026
+Week 4 Start: Saturday, 26 September 2026
+Meeting dates: 28 September, 2 October, 6 October, 9 October, and 13 October 2026 (working days, spaced across the period).
+
+Planned Work
+
+1. Implement the UI Process, Core Process and Logging Process as separate processes.
+2. Connect the processes using an IPC mechanism.
+3. Preserve the Week 1–3 simulator functionality.
+4. Test the implementation on Windows.
+
+Completed Work / Progress
+
+1. The team initially selected POSIX FIFO Named Pipes for IPC.
+2. The team continued with the FIFO approach before encountering a Windows compatibility issue.
+3. Java TCP Socket IPC was selected as the alternative.
+4. The updated socket-based implementation was reported by the team as working properly.
+5. The Week 4 meeting records and decision history have been documented.
+
+Pending Work
+
+there is no pending work for week 4
+Issue Encountered
+
+The POSIX FIFO Named Pipes approach could not be run successfully in the Windows environment.
+
+Resolution
+
+The team selected Java TCP Socket IPC as the cross-platform alternative.
+
+Individual Responsibilities
+
+- Punarvi: UI Process.
+- Izhan: Core Process.
+- Keora: Logging Process.
+- Hisham: Integration of the Week 4 processes and IPC.
+

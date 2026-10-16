@@ -1,0 +1,27 @@
+Week 4 — Meeting 4
+
+Date: Friday, 9 October 2026
+Meeting Number: 4
+Participants: Punarvi, Izhan, Keora, Hisham
+
+Discussion
+
+After the Windows FIFO issue, the team selected Java TCP Socket IPC as the alternative for communication between the processes.
+
+Decisions
+
+1. Replace POSIX FIFO Named Pipes with Java TCP Socket IPC.
+2. Use socket communication between UI and Core.
+3. Use a separate socket connection between Core and Logging.
+4. Preserve the Week 1–3 simulator functionality.
+
+Action Items
+
+Punarvi: UI Process.
+Izhan: Core Process.
+Keora: Logging Process.
+Hisham: Integration of the Week 4 processes and IPC.
+
+Next Step
+
+Update the Week 4 code and test the socket-based process communication.

@@ -1,0 +1,23 @@
+Week 4 — Meeting 5
+
+Date: Tuesday, 13 October 2026
+Meeting Number: 5
+Participants: Punarvi, Izhan, Keora, Hisham
+
+Discussion
+
+The team reviewed the updated socket-based implementation. The team reported that the application was working properly with the socket approach.
+
+Decisions
+
+1. Continue with Java TCP Socket IPC as the selected Week 4 approach.
+2. Retain the updated socket implementation.
+3. Complete and record end-to-end validation on Windows.
+
+Action Items
+
+Punarvi: UI Process.
+Izhan: Core Process.
+Keora: Logging Process.
+Hisham: Integration of the Week 4 processes and IPC.
+

@@ -1,0 +1,25 @@
+Week 4 — Meeting 1
+
+Date: Monday, 28 September 2026
+Meeting Number: 1
+Participants: Punarvi, Izhan, Keora, Hisham
+
+Discussion
+
+The team discussed the Week 4 requirement for communication between separate UI, Core and Logging processes. POSIX FIFO Named Pipes were selected as the initial IPC approach.
+
+Decisions
+
+1. Start with POSIX FIFO Named Pipes for inter-process communication.
+2. Keep the UI, Core and Logging components as separate processes.
+
+Action Items
+
+Punarvi: UI Process.
+Izhan: Core Process.
+Keora: Logging Process.
+Hisham: Integration of the Week 4 processes and IPC.
+
+Next Step
+
+Proceed with the FIFO-based implementation and review it in the next meeting.
