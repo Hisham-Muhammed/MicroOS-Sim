@@ -1,0 +1,25 @@
+Week 4 — Meeting 2
+
+Date: Friday, 2 October 2026
+Meeting Number: 2
+Participants: Punarvi, Izhan, Keora, Hisham
+
+Discussion
+
+The team continued with the POSIX FIFO Named Pipes approach and reviewed the implementation plan.
+
+Decisions
+
+1. Continue implementing the FIFO IPC approach.
+2. Test the communication between the separate processes.
+
+Action Items
+
+Punarvi: UI Process.
+Izhan: Core Process.
+Keora: Logging Process.
+Hisham: Integration of the Week 4 processes and IPC.
+
+Next Step
+
+Run the implementation in the target environment and report any blockers.

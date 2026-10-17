@@ -1,0 +1,25 @@
+Week 4 — Meeting 3
+
+Date: Tuesday, 6 October 2026
+Meeting Number: 3
+Participants: Punarvi, Izhan, Keora, Hisham
+
+Discussion
+
+The team encountered a problem running the POSIX FIFO implementation on Windows. The team discussed the platform compatibility issue and the need for a Java-based alternative.
+
+Decisions
+
+1. Record Windows compatibility as a blocker for the current FIFO approach.
+2. Investigate a cross-platform Java IPC alternative before proceeding.
+
+Action Items
+
+Punarvi: UI Process.
+Izhan: Core Process.
+Keora: Logging Process.
+Hisham: Integration of the Week 4 processes and IPC.
+
+Next Step
+
+Select an alternative IPC mechanism and update the implementation.

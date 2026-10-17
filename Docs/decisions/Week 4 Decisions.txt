@@ -1,0 +1,54 @@
+# WEEK 4 — DECISION RECORD
+
+WEEK 4 DECISION 1: Initial IPC Method: POSIX FIFO Named Pipes
+
+
+Problem / Requirement
+The UI, Core and Logging components need inter-process communication.
+
+Decision
+POSIX FIFO Named Pipes were selected as the initial IPC method.
+
+Reasoning
+This was the team's first implementation choice for connecting separate processes.
+
+Responsible Members
+Punarvi — UI Process; Izhan — Core Process; Keora — Logging Process; Hisham — integration.
+
+---
+
+
+WEEK 4 DECISION 2: Windows Compatibility Issue
+
+
+Problem
+The POSIX FIFO implementation could not be run successfully in the Windows environment.
+
+Decision
+Do not proceed by assuming the FIFO approach is working on Windows. Select a Java IPC alternative that supports the required environment.
+
+---
+
+WEEK 4 DECISION 3: Switch to Java TCP Socket IPC
+
+
+Problem
+The POSIX FIFO approach caused a Windows compatibility blocker.
+
+Options Discussed
+Continue troubleshooting the POSIX-specific FIFO implementation or use a cross-platform Java IPC mechanism.
+
+Final Decision
+Use Java TCP Socket IPC. Use one socket connection for UI-to-Core communication and a separate socket connection for Core-to-Logging communication.
+
+Constraints
+Keep UI, Core and Logging as separate processes and preserve existing Week 1–3 simulator functionality.
+
+---
+
+WEEK 4 DECISION 4: Socket Implementation Status
+
+
+Decision
+The team reported that the updated Java TCP Socket IPC implementation was working properly. Continue with the socket-based version.
+
