@@ -1,0 +1,58 @@
+ERROR DETECTION – Meeting 01
+
+Date: 2 November 2026
+Meeting Number: 01
+Participants: Izhan, Keora, Hisham, Punarvi
+
+Agenda
+
+1. Understand the Hamming (7,4) error detection algorithm.
+2. Discuss how to integrate Hamming code into the existing MicroOS-Sim project.
+3. Divide the implementation responsibilities among the four members.
+4. Discuss the required assembly instructions and Java support.
+5. Plan the testing and documentation process.
+
+Discussion
+
+The team discussed the implementation of the Hamming (7,4) error detection algorithm in the existing MicroOS-Sim project.
+
+The team decided to use assembly instructions for parity-bit generation and syndrome calculation. Java will be used to support the required instructions and display the error detection result.
+
+The responsibilities were divided as follows:
+
+* Hisham: Hamming (7,4) assembly algorithm and project integration& Documention
+* Izhan: Java instruction support, including XRL and ALERT.
+* Keora: Syndrome calculation and error detection testing.
+* Punarvi: UI alert implementation
+
+The team also discussed the use of XOR operations to calculate parity bits and identify incorrect bit positions.
+
+Decisions
+
+1. The Hamming (7,4) algorithm will be implemented using supported assembly instructions.
+2. Java will provide the required XOR instruction support and output alert functionality.
+3. The existing simulator functionality must be preserved.
+4. Both error and no-error scenarios will be tested.
+5. Each member will complete their assigned responsibilities and coordinate during integration.
+
+Action Items
+
+Student 1 — Hisham:
+
+Design the Hamming assembly program, calculate parity bits, and handle project integration.
+
+Student 2 — Izhan:
+
+Implement and register XRL and ALERT instructions in the Java simulator.
+
+Student 3 — Keora:
+
+Work on syndrome calculation, error-position identification, and testing scenarios.
+
+Student 4 — Punarvi:
+
+Implement the UI error alert, test the output display, and update the documentation.
+
+Next Meeting
+
+The team will review the implementation progress, verify the assembly programs, and test the Hamming error detection functionality.
