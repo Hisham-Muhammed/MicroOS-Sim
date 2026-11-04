@@ -35,6 +35,7 @@ public final class UIProcess {
     private JLabel titleLabel;
     private boolean darkMode = true;
     private boolean programLoaded = false;
+    private String lastAlertShown = "";
     private BufferedWriter coreWriter;
     private BufferedReader coreReader;
     private Socket coreSocket;
@@ -203,7 +204,7 @@ public final class UIProcess {
 
         buttons.add(load); buttons.add(reset); buttons.add(step); buttons.add(run);
         load.addActionListener(e -> loadProgram());
-        reset.addActionListener(e -> request("RESET"));
+        reset.addActionListener(e -> { lastAlertShown = ""; request("RESET"); });
         step.addActionListener(e -> runOnlyIfLoaded("STEP"));
         run.addActionListener(e -> runOnlyIfLoaded("RUN"));
 
@@ -253,6 +254,7 @@ public final class UIProcess {
             coreWriter.flush();
             String response = readAndDisplayResponse();
             programLoaded = response != null && response.startsWith("OK|");
+            lastAlertShown = "";
             if (programLoaded) {
                 JOptionPane.showMessageDialog(frame,
                         "Program loaded successfully! You can now use STEP or RUN.",
@@ -319,6 +321,7 @@ public final class UIProcess {
 
         traceArea.setText(trace);
         cpuArea.setText(state);
+        showHammingAlertIfPresent(trace);
 
         for (String line : state.split("\n")) {
             if (line.startsWith("STATUS=")) statusLabel.setText("● " + line.substring(7));
@@ -326,6 +329,21 @@ public final class UIProcess {
         }
 
         instructionLabel.setText("Instruction: updated by Core Process");
+    }
+
+    private void showHammingAlertIfPresent(String trace) {
+        for (String line : trace.split("\\R")) {
+            if (line.startsWith("ALERT:") && !line.equals(lastAlertShown)) {
+                lastAlertShown = line;
+                boolean noError = line.contains("No error detected");
+                JOptionPane.showMessageDialog(
+                        frame,
+                        line.substring("ALERT:".length()).trim(),
+                        "Hamming Code - Error Detection",
+                        noError ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE
+                );
+            }
+        }
     }
 
     private void showError(String message) {
