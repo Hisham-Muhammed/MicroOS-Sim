@@ -56,7 +56,7 @@ The timestamps in this example are illustrative; actual timestamps come from the
 - `main(String[] args)` is the program entry point.
 - Prints a startup message and the port on which it is waiting.
 - Uses `FifoConfig.CORE_LOG_PORT` for the TCP server port.
-- Uses `src/week4/logs/simulator.log` as the output log file, relative to the process's working directory.
+- Creates a separate file for each simulator session under `src/week4/logs/`, named `MicroOS_Log_YYYY-MM-DD_HH-MM-SS-mmm.txt`. Existing session logs are not overwritten.
 - Opens a `ServerSocket` and waits for a Core Process connection.
 - Reads incoming UTF-8 text one line at a time.
 - Valid lines are parsed with `LogMessage.parse`, written with `Logger`, and reported in the console.
@@ -85,13 +85,13 @@ This file is empty and contains no source code or configuration. It has no effec
 2. The process waits for the Core Process to connect.
 3. Each incoming line is checked by `LogMessage.parse`.
 4. If valid, the resulting `LogMessage` is passed to `Logger`.
-5. `Logger` appends a timestamped entry to `src/week4/logs/simulator.log`.
+5. `Logger` writes a timestamped entry to the session-specific `MicroOS_Log_*.txt` file.
 6. When `EXIT` is received or the connection closes, the process shuts down and closes its resources.
 
 ## Configuration and Related Files
 
 - `src/week4/ipc/FifoConfig.java` defines `CORE_LOG_PORT` (`5052`) and other inter-process communication settings. The logging process imports this class rather than hard-coding the port.
-- `src/week4/logs/simulator.log` is the log output path used by `LoggingProcess`. The file and its parent directory are created as needed.
+- `src/week4/logs/` is the output directory. `LoggingProcess` creates a timestamped file for every session; the directory is created as needed.
 - The module uses TCP sockets for inter-process communication; despite the `FifoConfig` class name and legacy FIFO constants, this logging workflow uses the TCP port.
 
 ## Running and Integration Notes
@@ -106,3 +106,18 @@ Compile and launch commands depend on the rest of the Week 4 project setup. Refe
 - The server accepts one Core Process connection per run; after that connection ends, the process exits.
 - Messages are processed line by line, so senders must terminate each message with a newline.
 - The output file path is relative to the current working directory, so launching from a different directory may place the log file somewhere unexpected.
+
+## Detailed events recorded
+
+The Core Process forwards events to Logging, including:
+
+- UI-to-Core commands and assembly instruction lines received.
+- Core-to-UI responses sent back to the interface.
+- Hamming data-bit selection, input data, calculated parity count, parity positions and generated codeword.
+- Each executed instruction and CPU register/flag state after the instruction.
+- Stack PUSH/POP values, SP before/after, and stack contents before/after.
+- Queue ENQUEUE/DEQUEUE values, front/rear index changes, and queue contents before/after.
+- Stack, queue and non-zero data-memory snapshots after each instruction.
+- Hamming ALERT results, execution errors, process start and shutdown events.
+
+The log lines identify the direction of communication, for example `[UI -> CORE]`, `[CORE -> UI]`, and `[LOGGING] Received from Core Process`.

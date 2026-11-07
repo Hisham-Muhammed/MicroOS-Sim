@@ -1,0 +1,135 @@
+STC89C52 – Memory, Stack and Architecture
+Memory
+
+Memory is used to store the program and data needed by the microcontroller.
+
+The microcontroller needs memory to store the instructions it has to execute and also the data used while the program is running.
+
+There are two main things to remember:
+
+Program Memory: stores the program instructions.
+Data Memory: stores the data used by the program.
+Internal RAM
+
+The internal RAM has different areas for different purposes:
+
+Register banks
+Bit-addressable RAM
+General-purpose RAM
+Register Banks
+
+There are 4 register banks.
+
+Each bank contains 8 registers, R0 to R7.
+Bank 0 → R0 R1 R2 R3 R4 R5 R6 R7
+Bank 1 → R0 R1 R2 R3 R4 R5 R6 R7
+Bank 2 → R0 R1 R2 R3 R4 R5 R6 R7
+Bank 3 → R0 R1 R2 R3 R4 R5 R6 R7
+
+Only one bank is selected at a time.
+
+Bit-addressable RAM
+
+This is a special area where individual bits can be accessed.
+
+General-purpose RAM
+
+This area is used for temporary data and values during program execution.
+
+Important points
+Memory stores program and data.
+RAM is used as working memory.
+There are 4 register banks.
+Each bank has R0 to R7.
+Bit-addressable RAM allows individual bits to be accessed.
+
+Stack
+
+The stack is a temporary storage area in memory.
+
+It follows LIFO, which means:
+
+Last In, First Out.
+
+A simple example is a pile of books. The last book placed on the pile is removed first. 
+
+PUSH
+
+PUSH is used to put data into the stack.
+
+POP
+
+POP is used to take data from the top of the stack.
+
+So:
+
+PUSH → Put data in
+
+POP → Take data out
+
+Stack Pointer
+
+SP stands for Stack Pointer.
+
+The Stack Pointer keeps track of the top of the stack.
+
+When data is added or removed, the stack position changes, so SP keeps track of the current position.
+
+Important points
+SP = Stack Pointer.
+It keeps track of the top of the stack.
+PUSH and POP change the stack position.
+The stack is used for temporary storage.
+
+Why is the Stack Used?
+
+The stack is mainly useful when the processor needs to temporarily save information.
+
+For example, when a subroutine is called:
+
+Main Program -> CALL  -> Subroutine  -> RETURN -> Main Program
+
+The processor needs to remember where to return after the subroutine finishes. The stack is used for this return information.
+
+The stack is also used when handling interrupts.
+
+Important points
+Used during subroutine calls.
+Used during interrupts.
+Helps save temporary information.
+Helps the processor return to the correct place.
+
+Architecture Diagram
+
+The architecture diagram shows the main parts of the STC89C52 and how they are connected.
+
+The main parts relevant to this project are:
+
+CPU
+Registers
+Memory
+Stack
+I/O Ports
+Timer
+Interrupts
+
+Some important registers are:
+
+A – Accumulator
+B – B Register
+PC – Program Counter
+SP – Stack Pointer
+DPTR – Data Pointer
+PSW – Program Status Word
+Basic Architecture
+   
+                          
+The CPU executes the instructions. Memory stores the program and data. The stack is used for temporary storage, and SP keeps track of the stack.
+
+Overall Summary
+
+The CPU, memory and stack work together in the STC89C52.
+
+Memory stores the program and data. RAM provides working space. The stack is a temporary storage area and follows LIFO. PUSH puts data into the stack and POP takes data out. The Stack Pointer keeps track of the top of the stack.
+
+The architecture diagram gives a simple view of how the CPU, memory, stack and other parts are connected.

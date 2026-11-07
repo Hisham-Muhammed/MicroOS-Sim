@@ -1,62 +1,46 @@
-# Hamming (7,4) Error Detection
+# Hamming Code – Variable Data-Bit Selection
 
-This folder contains the assembly programs for Hamming (7,4) error detection in MicroOS-Sim.
+The Hamming Code panel is available in the Week 5 UI. The user can select a data-bit size from the dropdown and generate a codeword.
 
-## Files
+## Available data-bit sizes
 
-- `Hamming74Demo.asm` – Tests error detection by changing one bit.
-- `Hamming74NoError.asm` – Tests the program without any error.
+| Data bits | Parity bits | Total codeword bits |
+|---:|---:|---:|
+| 4 | 3 | 7 |
+| 5 | 4 | 9 |
+| 8 | 4 | 12 |
+| 11 | 4 | 15 |
+| 12 | 5 | 17 |
 
-## About Hamming (7,4)
-
-Hamming (7,4) uses 4 data bits and 3 parity bits.
-
-**Bit positions:**
-
-| Position | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Bit | P1 | P2 | D1 | P4 | D2 | D3 | D4 |
-
-## Parity Calculation
+The number of parity bits is calculated automatically using:
 
 ```text
-P1 = D1 XOR D2 XOR D4
-P2 = D1 XOR D3 XOR D4
-P4 = D2 XOR D3 XOR D4
+2^r >= m + r + 1
 ```
 
-## How It Works
+- `m` = number of data bits
+- `r` = number of parity bits
 
-1. Load 4 data bits into registers.
-2. Calculate 3 parity bits using XOR.
-3. Generate the Hamming code.
-4. Introduce an error in the demo program.
-5. Calculate syndrome bits (S1, S2, S4).
-6. Find the error position.
+The implementation uses even parity. Parity positions are powers of two: 1, 2, 4, 8, 16, and so on.
 
-## Expected Output
+## How to use
 
-| Program | Syndrome | Result |
-| --- | --- | --- |
-| Hamming74Demo.asm | 011 | Error at position 3 |
-| Hamming74NoError.asm | 000 | No error |
+1. Start Logging Process, Core Process, and UI Process.
+2. In the Hamming Code panel, choose the data-bit size.
+3. Enter exactly that many binary digits (only `0` and `1`).
+4. Click **GENERATE CODE**.
+5. The UI sends the selected size and input bits to Core over TCP.
+6. Core calculates the parity bits and codeword, then returns the result to UI.
+7. The request and calculation are recorded in the timestamped session log.
 
-## Instructions Used
+## Existing Hamming (7,4) assembly examples
 
-- `MOV` – Move data.
-- `XRL` – Perform XOR operation.
-- `ALERT` – Show the error result.
-- `END` – End the program.
+- `Hamming74Demo.asm` – single-bit error demonstration.
+- `Hamming74NoError.asm` – no-error demonstration.
 
-## Running
+These two assembly examples remain Hamming (7,4) examples. The new dropdown-based generator supports the listed variable data sizes; it does not silently rewrite the existing assembly programs.
 
-1. Start the MicroOS-Sim processes.
-2. Open the UI.
-3. Load either assembly file.
-4. Click RUN or use STEP.
-5. Check the result in the simulator.
-
-**Note:** This program can detect and find a single-bit error. It does not correct the error automatically.
+**Note:** The current generic generator creates an even-parity Hamming codeword. Automatic correction of an altered received codeword is not part of this generator yet.
 
 **Project:** MicroOS-Sim  
 **Team:** Onji Byte

@@ -1,0 +1,66 @@
+# WEEK 5 — DECISION RECORD (ERROR DETECTION)
+
+
+
+## WEEK 5 DECISION 1: Use Hamming (7,4)
+
+Problem / Requirement
+
+The team needed an error-detection method that could be integrated into the existing MicroOS-Sim project.
+
+Decision
+
+Implement the Hamming (7,4) error-detection algorithm.
+
+Reasoning
+
+It uses four data bits and three parity bits to detect and identify a single-bit error.
+
+## WEEK 5 DECISION 2: Perform Hamming Calculations in Assembly
+
+Decision
+
+Use supported assembly instructions to generate parity bits and calculate syndrome bits. Do not implement the calculations as special Hamming pseudo-instructions.
+
+Reasoning
+
+The algorithm should demonstrate the operations through the simulator's instruction execution.
+
+## WEEK 5 DECISION 3: Add Required Java Instruction Support
+
+Decision
+
+Java will provide the required XRL instruction support and ALERT output functionality.
+
+Reasoning
+
+XRL is needed for XOR-based parity and syndrome calculations, while ALERT displays the detection result in the UI.
+
+## WEEK 5 DECISION 4: Preserve Existing Project Functionality
+
+Decision
+
+Preserve the existing Week 1–3 and Week 4 project structure and functionality while integrating error detection.
+
+Constraint
+
+The Hamming implementation must be added without replacing or breaking the earlier simulator work.
+
+## WEEK 5 DECISION 5: Verify Error and No-Error Scenarios
+
+Decision
+
+Test both demonstration cases before finalizing the implementation:
+
+- `Hamming74Demo.asm`: intentional error at bit position 3; expected syndrome `011`.
+- `Hamming74NoError.asm`: no error; expected syndrome `000`.
+
+The team will verify the detected position and the UI alert output.
+
+## Responsibilities Agreed
+
+- Hisham: Hamming assembly algorithm, project integration, and documentation.
+- Izhan: XRL and ALERT instruction support in Java.
+- Keora: Syndrome calculation, error-position identification, and testing.
+- Punarvi: UI alert implementation, output testing, and README documentation.
+
