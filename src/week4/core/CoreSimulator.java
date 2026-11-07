@@ -11,7 +11,6 @@ public class CoreSimulator {
     private CoreInstruction currentCoreInstruction;
     private String executionStatus;
     private StringBuilder executionTrace;
-    private String lastAlertMessage;
 
     // Makes SJMP execute only once in a program run.
     private boolean sjmpUsed;
@@ -24,7 +23,6 @@ public class CoreSimulator {
         queue = new CoreQueue(8);
         executionStatus = "Ready";
         executionTrace = new StringBuilder();
-        lastAlertMessage = "";
         sjmpUsed = false;
     }
 
@@ -101,14 +99,6 @@ public class CoreSimulator {
 
                 case "ORL":
                     executeORL(operand);
-                    break;
-
-                case "XRL":
-                    executeXRL(operand);
-                    break;
-
-                case "ALERT":
-                    executeALERT(operand);
                     break;
 
                 case "INC":
@@ -337,64 +327,6 @@ public class CoreSimulator {
                 cpu.getA() | value);
     }
 
-    // XRL A,Rn or XRL A,#data (bitwise exclusive OR).
-    private void executeXRL(String operand) {
-        String[] parts = operand.split(",");
-        if (parts.length != 2 || !parts[0].trim().equalsIgnoreCase("A")) {
-            throw new IllegalArgumentException("XRL supports A,R0-R7 or A,#data");
-        }
-
-        String source = parts[1].trim().toUpperCase();
-        int value;
-        if (source.startsWith("#")) {
-            value = parseValue(source);
-        } else if (isRegister(source)) {
-            value = cpu.getRegister(registerNumber(source));
-        } else {
-            throw new IllegalArgumentException("XRL supports A,R0-R7 or A,#data");
-        }
-
-        cpu.setA(cpu.getA() ^ value);
-    }
-
-    // ALERT S1_REGISTER,S2_REGISTER,S4_REGISTER.
-    // XOR/syndrome calculations remain in assembly; this instruction only
-    // reports the syndrome in a readable form for the simulator UI.
-    private void executeALERT(String operand) {
-        String[] parts = operand.split(",");
-        if (parts.length != 3) {
-            throw new IllegalArgumentException("ALERT requires three registers: ALERT S1,S2,S4");
-        }
-
-        int s1 = readSyndromeBit(parts[0]);
-        int s2 = readSyndromeBit(parts[1]);
-        int s4 = readSyndromeBit(parts[2]);
-
-        int errorPosition = (s4 << 2) | (s2 << 1) | s1;
-        String syndrome = "" + s4 + s2 + s1;
-
-        if (errorPosition == 0) {
-            lastAlertMessage = "ALERT: No error detected (syndrome " + syndrome + ").";
-        } else {
-            lastAlertMessage = "ALERT: Error detected at Hamming bit position "
-                    + errorPosition + " (syndrome " + syndrome + ").";
-        }
-
-        executionTrace.append(lastAlertMessage).append("\n");
-    }
-
-    private int readSyndromeBit(String registerOperand) {
-        String register = registerOperand.trim().toUpperCase();
-        if (!isRegister(register)) {
-            throw new IllegalArgumentException("ALERT operands must be R0-R7 registers");
-        }
-        int value = cpu.getRegister(registerNumber(register));
-        if (value != 0 && value != 1) {
-            throw new IllegalArgumentException("Syndrome registers must contain only 0 or 1");
-        }
-        return value;
-    }
-
     // INC A or INC Rn
     private void executeINC(String operand) {
 
@@ -620,7 +552,6 @@ public class CoreSimulator {
         currentCoreInstruction = null;
 
         executionTrace.setLength(0);
-        lastAlertMessage = "";
         stack.reset();
         queue.reset();
 
@@ -628,32 +559,18 @@ public class CoreSimulator {
         // whenever a new program is loaded.
         sjmpUsed = false;
 
-        int instructionIndex = 0;
         for (int i = 0; i < program.length; i++) {
-            if (program[i] == null) {
-                continue;
-            }
 
-            String line = program[i].trim();
+            if (program[i] != null
+                    && !program[i].trim().isEmpty()) {
 
-            // Assembly comments begin with ';' or '//'.
-            int semicolon = line.indexOf(';');
-            int slashComment = line.indexOf("//");
-            int commentStart = -1;
-            if (semicolon >= 0) commentStart = semicolon;
-            if (slashComment >= 0 && (commentStart < 0 || slashComment < commentStart)) {
-                commentStart = slashComment;
-            }
-            if (commentStart >= 0) {
-                line = line.substring(0, commentStart).trim();
-            }
+                instructionSet.createCoreInstruction(
+                        program[i]);
 
-            if (line.isEmpty()) {
-                continue;
+                memory.writeCoreInstruction(
+                        i,
+                        program[i].trim());
             }
-
-            instructionSet.createCoreInstruction(line);
-            memory.writeCoreInstruction(instructionIndex++, line);
         }
 
         executionStatus = "Program loaded";
@@ -669,7 +586,6 @@ public class CoreSimulator {
         currentCoreInstruction = null;
 
         executionTrace.setLength(0);
-        lastAlertMessage = "";
         stack.reset();
         queue.reset();
 
@@ -771,49 +687,7 @@ public class CoreSimulator {
     }
 
     public String trace() {
-        StringBuilder view = new StringBuilder();
-        int programSize = memory.getProgramSize();
-        view.append(programSize > 0 ? "✓  PROGRAM LOADED\n" : "!  NO PROGRAM LOADED\n");
-        view.append("────────────────────────\n");
-
-        for (int i = 0; i < programSize; i++) {
-            String instruction = memory.readCoreInstruction(i);
-            view.append(String.format("%04X   %s\n", i, instruction == null ? "" : instruction));
-        }
-
-        view.append("\n────────────────────────\n");
-        if (programSize > 0 && cpu.getPC() > 0) {
-            int currentAddress = Math.min(cpu.getPC() - 1, programSize - 1);
-            String instruction = memory.readCoreInstruction(currentAddress);
-            view.append("STEP ").append(currentAddress + 1).append("\n");
-            view.append("Instruction : ").append(instruction == null ? "-" : instruction).append("\n");
-            view.append("Category    : ").append(instructionCategory(instruction)).append("\n\n");
-        } else {
-            view.append("STEP 0\nInstruction : -\nCategory    : -\n\n");
-        }
-
-        if (executionTrace.length() > 0) {
-            view.append(executionTrace);
-        } else {
-            view.append("FETCH -\nDECODE -\nEXECUTE -\n");
-        }
-        if (lastAlertMessage != null && !lastAlertMessage.isEmpty()) {
-            view.append("\n").append(lastAlertMessage).append("\n");
-        }
-        view.append("\nSTATUS : ").append(executionStatus);
-        return view.toString();
-    }
-
-    private String instructionCategory(String instruction) {
-        if (instruction == null || instruction.trim().isEmpty()) return "-";
-        String mnemonic = instruction.trim().split("\\s+")[0].toUpperCase();
-        if (mnemonic.equals("MOV") || mnemonic.equals("MOVC") || mnemonic.equals("MOVX") || mnemonic.equals("XCH")) return "Data Transfer";
-        if (mnemonic.equals("ADD") || mnemonic.equals("ADDC") || mnemonic.equals("SUBB") || mnemonic.equals("INC") || mnemonic.equals("DEC") || mnemonic.equals("MUL") || mnemonic.equals("DIV")) return "Arithmetic";
-        if (mnemonic.equals("ANL") || mnemonic.equals("ORL") || mnemonic.equals("XRL") || mnemonic.equals("CLR") || mnemonic.equals("CPL")) return "Logical";
-        if (mnemonic.startsWith("J") || mnemonic.equals("DJNZ") || mnemonic.equals("CJNE")) return "Branching";
-        if (mnemonic.equals("PUSH") || mnemonic.equals("POP")) return "Stack Operation";
-        if (mnemonic.equals("ENQUEUE") || mnemonic.equals("DEQUEUE")) return "Queue Operation";
-        return "Control / Other";
+        return executionTrace.toString();
     }
 
     public String currentInstructionText() {

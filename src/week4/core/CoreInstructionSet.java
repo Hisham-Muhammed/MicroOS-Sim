@@ -23,7 +23,6 @@ public class CoreInstructionSet {
         // Logical
         instructionCategories.put("ANL", "Logical");
         instructionCategories.put("ORL", "Logical");
-        instructionCategories.put("XRL", "Logical");
         instructionCategories.put("CLR", "Logical");
 
         // Control Flow
@@ -40,7 +39,6 @@ public class CoreInstructionSet {
         instructionCategories.put("DEQUEUE", "FIFO CoreQueue");
 
         // Program Termination
-        instructionCategories.put("ALERT", "Output / Error Detection");
         instructionCategories.put("END", "Program Termination");
     }
 
