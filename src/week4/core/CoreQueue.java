@@ -49,6 +49,8 @@ public class CoreQueue {
     public boolean isFull() { return size == data.length; }
     public int size() { return size; }
     public int capacity() { return data.length; }
+    public int getFrontIndex() { return front; }
+    public int getRearIndex() { return rear; }
 
     public String getState() {
         StringBuilder out = new StringBuilder();

@@ -33,8 +33,13 @@ public final class UIProcess {
     private JLabel instructionLabel;
     private JLabel pcLabel;
     private JLabel titleLabel;
+    private JComboBox<String> dataBitChoice;
+    private JTextField dataBitsInput;
+    private JLabel parityInfoLabel;
+    private JComboBox<String> errorPositionChoice;
     private boolean darkMode = true;
     private boolean programLoaded = false;
+    private String lastAlertShown = "";
     private BufferedWriter coreWriter;
     private BufferedReader coreReader;
     private Socket coreSocket;
@@ -51,7 +56,7 @@ public final class UIProcess {
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null,
                     "Could not connect to Core Process.\nStart CoreProcess first.\n\n" + e.getMessage(),
-                    "Week 4 IPC Error", JOptionPane.ERROR_MESSAGE);
+                    "IPC Connection Error", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
     }
@@ -65,7 +70,7 @@ public final class UIProcess {
     }
 
     private void buildUI() {
-        frame = new JFrame("STC89C52 Microcontroller Simulator • Week 4");
+        frame = new JFrame("STC89C52 Microcontroller Simulator • Week 5");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setSize(900, 700);
         frame.setMinimumSize(new Dimension(760, 600));
@@ -92,11 +97,16 @@ public final class UIProcess {
                 "END"
         );
 
-        JPanel center = new JPanel(new GridLayout(1, 3, 12, 12));
+        JPanel columns = new JPanel(new GridLayout(1, 3, 12, 12));
+        columns.setOpaque(false);
+        columns.add(createPanel("ASSEMBLY PROGRAM  •  WEEK 2 + WEEK 3", new JScrollPane(sourceEditor)));
+        columns.add(createPanel("EXECUTION TRACE", new JScrollPane(traceArea)));
+        columns.add(createPanel("CPU STATE", new JScrollPane(cpuArea)));
+
+        JPanel center = new JPanel(new BorderLayout(0, 10));
         center.setOpaque(false);
-        center.add(createPanel("ASSEMBLY PROGRAM  •  WEEK 2 + WEEK 3", new JScrollPane(sourceEditor)));
-        center.add(createPanel("EXECUTION TRACE", new JScrollPane(traceArea)));
-        center.add(createPanel("CPU STATE", new JScrollPane(cpuArea)));
+        center.add(createHammingPanel(), BorderLayout.NORTH);
+        center.add(columns, BorderLayout.CENTER);
 
         root.add(header, BorderLayout.NORTH);
         root.add(center, BorderLayout.CENTER);
@@ -126,7 +136,7 @@ public final class UIProcess {
         titleLabel = new JLabel("STC89C52  MICROCONTROLLER  SIMULATOR");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
 
-        JLabel subtitle = new JLabel("8051 Architecture  •  Week 4 Multi-Process IPC");
+        JLabel subtitle = new JLabel("8051 Architecture  •  Multi-Process IPC + Hamming Code");
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 11));
         subtitle.setForeground(new Color(220, 225, 240));
 
@@ -189,6 +199,105 @@ public final class UIProcess {
         return area;
     }
 
+    private JPanel createHammingPanel() {
+        JPanel panel = new RoundedPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 9));
+
+        JLabel heading = new JLabel("HAMMING CODE");
+        heading.setFont(new Font("SansSerif", Font.BOLD, 11));
+
+        dataBitChoice = new JComboBox<>(new String[]{"4", "5", "8", "11", "12"});
+        dataBitChoice.setSelectedItem("4");
+        dataBitsInput = new JTextField("1011", 12);
+        parityInfoLabel = new JLabel("3 parity bits • 7 total bits");
+        errorPositionChoice = new JComboBox<>();
+        updateErrorPositions();
+
+        JButton generate = createActionButton("GENERATE CODE", ACCENT);
+        dataBitChoice.addActionListener(e -> updateHammingInfo());
+        generate.addActionListener(e -> generateHammingCode());
+
+        panel.add(heading);
+        panel.add(new JLabel("Data-bit size:"));
+        panel.add(dataBitChoice);
+        panel.add(new JLabel("Data (0/1):"));
+        panel.add(dataBitsInput);
+        panel.add(new JLabel("Inject error:"));
+        panel.add(errorPositionChoice);
+        panel.add(parityInfoLabel);
+        panel.add(generate);
+        return panel;
+    }
+
+    private void updateHammingInfo() {
+        int dataCount = Integer.parseInt((String) dataBitChoice.getSelectedItem());
+        int parityCount = 0;
+        while ((1 << parityCount) < dataCount + parityCount + 1) parityCount++;
+        parityInfoLabel.setText(parityCount + " parity bits • "
+                + (dataCount + parityCount) + " total bits");
+        String current = dataBitsInput.getText().trim();
+        if (current.length() != dataCount) {
+            dataBitsInput.setText("0".repeat(dataCount));
+        }
+        updateErrorPositions();
+    }
+
+    private void updateErrorPositions() {
+        int dataCount = Integer.parseInt((String) dataBitChoice.getSelectedItem());
+        int parityCount = 0;
+        while ((1 << parityCount) < dataCount + parityCount + 1) parityCount++;
+        int totalBits = dataCount + parityCount;
+
+        errorPositionChoice.removeAllItems();
+        errorPositionChoice.addItem("No error");
+        for (int position = 1; position <= totalBits; position++) {
+            errorPositionChoice.addItem("Bit " + position);
+        }
+        errorPositionChoice.setSelectedIndex(0);
+    }
+
+    private void generateHammingCode() {
+        int selectedBits = Integer.parseInt((String) dataBitChoice.getSelectedItem());
+        String data = dataBitsInput.getText().trim();
+        if (!data.matches("[01]+") || data.length() != selectedBits) {
+            JOptionPane.showMessageDialog(frame,
+                    "Enter exactly " + selectedBits + " binary digits (0 or 1).",
+                    "Invalid Hamming Data", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int errorPosition = errorPositionChoice.getSelectedIndex();
+        try {
+            String command = "HAMMING|" + selectedBits + "|" + data + "|" + errorPosition;
+            coreWriter.write(command);
+            coreWriter.newLine();
+            coreWriter.flush();
+            String response = coreReader.readLine();
+            if (response == null) throw new EOFException("Core closed the connection.");
+
+            if (response.startsWith("OK|HAMMING_ASM|")) {
+                String encoded = response.substring("OK|HAMMING_ASM|".length());
+                String assembly = new String(Base64.getDecoder().decode(encoded), StandardCharsets.UTF_8);
+                sourceEditor.setText(assembly);
+                sourceEditor.setCaretPosition(0);
+                programLoaded = false;
+                lastAlertShown = "";
+                statusLabel.setText("● HAMMING ASSEMBLY GENERATED");
+                JOptionPane.showMessageDialog(frame,
+                        "Assembly generated in the existing editor.\nClick LOAD, then RUN.",
+                        "Hamming Assembly Generated", JOptionPane.INFORMATION_MESSAGE);
+            } else if (response.startsWith("ERROR|")) {
+                JOptionPane.showMessageDialog(frame, response.substring(6),
+                        "Hamming Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(frame, response,
+                        "Hamming Code", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (IOException ex) {
+            showError("Hamming request failed: " + ex.getMessage());
+        }
+    }
+
     private JPanel createBottomBar() {
         JPanel panel = new JPanel(new BorderLayout(10, 6));
         panel.setOpaque(false);
@@ -203,7 +312,7 @@ public final class UIProcess {
 
         buttons.add(load); buttons.add(reset); buttons.add(step); buttons.add(run);
         load.addActionListener(e -> loadProgram());
-        reset.addActionListener(e -> request("RESET"));
+        reset.addActionListener(e -> { lastAlertShown = ""; request("RESET"); });
         step.addActionListener(e -> runOnlyIfLoaded("STEP"));
         run.addActionListener(e -> runOnlyIfLoaded("RUN"));
 
@@ -253,6 +362,7 @@ public final class UIProcess {
             coreWriter.flush();
             String response = readAndDisplayResponse();
             programLoaded = response != null && response.startsWith("OK|");
+            lastAlertShown = "";
             if (programLoaded) {
                 JOptionPane.showMessageDialog(frame,
                         "Program loaded successfully! You can now use STEP or RUN.",
@@ -319,13 +429,33 @@ public final class UIProcess {
 
         traceArea.setText(trace);
         cpuArea.setText(state);
+        showHammingAlertIfPresent(trace);
 
+        String currentInstruction = "-";
         for (String line : state.split("\n")) {
             if (line.startsWith("STATUS=")) statusLabel.setText("● " + line.substring(7));
+            if (line.startsWith("CURRENT_INSTRUCTION=")) {
+                currentInstruction = line.substring("CURRENT_INSTRUCTION=".length()).trim();
+            }
             if (line.startsWith("PC : ")) pcLabel.setText("PC: " + line.substring(5));
         }
 
-        instructionLabel.setText("Instruction: updated by Core Process");
+        instructionLabel.setText("Instruction: " + currentInstruction);
+    }
+
+    private void showHammingAlertIfPresent(String trace) {
+        for (String line : trace.split("\\R")) {
+            if (line.startsWith("ALERT:") && !line.equals(lastAlertShown)) {
+                lastAlertShown = line;
+                boolean noError = line.contains("No error detected");
+                JOptionPane.showMessageDialog(
+                        frame,
+                        line.substring("ALERT:".length()).trim(),
+                        "Hamming Code - Error Detection",
+                        noError ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE
+                );
+            }
+        }
     }
 
     private void showError(String message) {
@@ -369,6 +499,7 @@ public final class UIProcess {
             cpuArea.setBackground(input);
             cpuArea.setForeground(text);
         }
+        if (errorPositionChoice != null) { errorPositionChoice.setBackground(input); errorPositionChoice.setForeground(text); }
         if (statusLabel != null) statusLabel.setForeground(GREEN);
         if (instructionLabel != null) instructionLabel.setForeground(muted);
         if (pcLabel != null) pcLabel.setForeground(text);

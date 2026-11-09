@@ -188,3 +188,20 @@ More features and implementation details will be added as development progresses
 ## Week 4 Windows IPC
 
 Week 4 uses Java TCP Socket IPC instead of POSIX FIFO pipes, so the separate UI, Core, and Logging processes can run on Windows. See `src/week4/ui/README.md` for compile and launch commands.
+
+
+---
+
+## Week 5 – Hamming Error Detection and Detailed Session Logging
+
+The Week 5 UI includes a Hamming Code panel. Users can choose 4, 5, 8, 11 or 12 data bits from a dropdown, enter binary data, and generate an even-parity Hamming codeword. The required number of parity bits is calculated automatically in the Core Process.
+
+Each simulator session creates a separate timestamped log file in `src/week4/logs/`:
+
+```text
+MicroOS_Log_YYYY-MM-DD_HH-MM-SS-mmm.txt
+```
+
+The log records UI-to-Core commands, Core-to-UI responses, instruction execution, CPU state, memory snapshots, Stack PUSH/POP values and pointer changes, Queue ENQUEUE/DEQUEUE values and index changes, Hamming calculations, and process events.
+
+For build and run instructions, see `src/week4/ui/README.md`.

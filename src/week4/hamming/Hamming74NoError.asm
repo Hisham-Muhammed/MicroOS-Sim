@@ -1,0 +1,44 @@
+; Hamming (7,4) no-error demonstration
+; Data bits: D1=1, D2=0, D3=1, D4=1
+; The data is not modified, so the syndrome should be 000.
+
+MOV R0,#01H
+MOV R1,#00H
+MOV R2,#01H
+MOV R3,#01H
+
+MOV A,R0
+XRL A,R1
+XRL A,R3
+MOV R4,A
+
+MOV A,R0
+XRL A,R2
+XRL A,R3
+MOV R5,A
+
+MOV A,R1
+XRL A,R2
+XRL A,R3
+MOV R6,A
+
+MOV A,R4
+XRL A,R0
+XRL A,R1
+XRL A,R3
+MOV R7,A
+
+MOV A,R5
+XRL A,R0
+XRL A,R2
+XRL A,R3
+MOV R4,A
+
+MOV A,R6
+XRL A,R1
+XRL A,R2
+XRL A,R3
+MOV R5,A
+
+ALERT R7,R4,R5
+END

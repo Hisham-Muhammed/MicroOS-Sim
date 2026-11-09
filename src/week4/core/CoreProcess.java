@@ -1,6 +1,7 @@
 package week4.core;
 
 import week4.ipc.FifoConfig;
+import week4.hamming.HammingCode;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.InetSocketAddress;
@@ -56,6 +57,7 @@ public final class CoreProcess {
                 log("INFO", "Core process connected to UI");
                 String line;
                 while ((line = reader.readLine()) != null) {
+                    log("INFO", "[UI -> CORE] Received: " + line);
                     if (line.equalsIgnoreCase("LOAD")) {
                         handleLoad(reader);
                     } else if (!handleCommand(line.trim())) {
@@ -86,9 +88,11 @@ public final class CoreProcess {
                 break;
             }
             if (line.startsWith("PROGRAM|")) {
-                program.add(new String(
+                String instruction = new String(
                         java.util.Base64.getDecoder().decode(line.substring(8)),
-                        StandardCharsets.UTF_8));
+                        StandardCharsets.UTF_8);
+                program.add(instruction);
+                log("INFO", "[UI -> CORE] Program instruction received: " + instruction);
             }
         }
 
@@ -97,6 +101,7 @@ public final class CoreProcess {
             simulator.loadProgram(program.toArray(new String[0]));
             long elapsed = System.nanoTime() - start;
             log("INFO", "Program loaded (" + program.size() + " instructions)");
+            log("INFO", "[CORE] Program data stored in CoreMemory; instruction count=" + program.size());
             send("OK|Program loaded|" + elapsed);
         } catch (Exception e) {
             log("ERROR", "Program load error: " + e.getMessage());
@@ -109,6 +114,10 @@ public final class CoreProcess {
             send("ERROR|Empty command");
             log("ERROR", "Empty command");
             return true;
+        }
+
+        if (command.toUpperCase().startsWith("HAMMING|")) {
+            return handleHamming(command);
         }
 
         long start = System.nanoTime();
@@ -153,6 +162,38 @@ public final class CoreProcess {
         }
     }
 
+    private boolean handleHamming(String command) throws IOException {
+        String[] parts = command.split("\\|", 4);
+        try {
+            if (parts.length < 3) {
+                throw new IllegalArgumentException("Use HAMMING|data-bit-count|data-bits|error-position");
+            }
+            int selectedBits = Integer.parseInt(parts[1].trim());
+            String data = parts[2].trim();
+            int errorPosition = parts.length == 4 ? Integer.parseInt(parts[3].trim()) : 0;
+            if (data.length() != selectedBits) {
+                throw new IllegalArgumentException("Enter exactly " + selectedBits + " data bits.");
+            }
+
+            HammingCode.Result result = HammingCode.generate(data);
+            String assembly = HammingCode.generateAssembly(data, errorPosition);
+            String encoded = java.util.Base64.getEncoder().encodeToString(
+                    assembly.getBytes(StandardCharsets.UTF_8));
+
+            log("INFO", "[CORE] Hamming request: data=" + data
+                    + ", parityBits=" + result.parityBits
+                    + ", totalBits=" + result.totalBits
+                    + ", codeword=" + result.codeword
+                    + ", injectedErrorPosition=" + errorPosition);
+            log("INFO", "[CORE] Generated assembly: parity calculation, error injection, syndrome check and ALERT");
+            send("OK|HAMMING_ASM|" + encoded);
+        } catch (Exception e) {
+            log("ERROR", "[CORE] Hamming configuration failed: " + e.getMessage());
+            send("ERROR|" + e.getMessage());
+        }
+        return true;
+    }
+
     private void logExecution(String operation) {
         logInstruction(simulator.currentInstructionText());
         String status = simulator.status();
@@ -177,10 +218,24 @@ public final class CoreProcess {
         if (upper.startsWith("POP")) log("INFO", "POP executed");
         if (upper.startsWith("ENQUEUE")) log("INFO", "ENQUEUE executed");
         if (upper.startsWith("DEQUEUE")) log("INFO", "DEQUEUE executed");
+        String details = simulator.lastOperationDetails();
+        if (details != null && !details.isEmpty()) {
+            log("INFO", "[CORE OPERATION DETAIL] " + details.replace("\n", " | "));
+        }
+        if (upper.startsWith("ALERT")) {
+            log("INFO", "[CORE HAMMING ALERT] " + simulator.lastAlertMessage());
+        }
+        log("INFO", "[CORE CPU STATE AFTER INSTRUCTION] " + simulator.cpuState().replace("\n", " | "));
+        log("INFO", "[CORE STACK STATE AFTER INSTRUCTION] " + simulator.stackState().replace("\n", " | "));
+        log("INFO", "[CORE QUEUE STATE AFTER INSTRUCTION] " + simulator.queueState().replace("\n", " | "));
+        log("INFO", "[CORE MEMORY STATE AFTER INSTRUCTION] " + simulator.memoryState());
     }
 
     private String buildStatus() {
+        String currentInstruction = simulator.currentInstructionText();
         return "STATUS=" + simulator.status()
+                + "\nCURRENT_INSTRUCTION="
+                + (currentInstruction == null ? "-" : currentInstruction)
                 + "\n"
                 + simulator.cpuState()
                 + "\n"
@@ -197,6 +252,7 @@ public final class CoreProcess {
     }
 
     private void send(String message) throws IOException {
+        log("INFO", "[CORE -> UI] Sent response: " + message.replace("\n", " "));
         uiWriter.write(message.replace("\n", "\\n"));
         uiWriter.newLine();
         uiWriter.flush();
@@ -269,6 +325,9 @@ public final class CoreProcess {
         String cpuState() { return simulator.cpuState(); }
         String stackState() { return simulator.stackState(); }
         String queueState() { return simulator.queueState(); }
+        String memoryState() { return simulator.memoryState(); }
+        String lastAlertMessage() { return simulator.lastAlertMessage(); }
+        String lastOperationDetails() { return simulator.lastOperationDetails(); }
         void runWithInstructionLogging(java.util.function.Consumer<String> logger) {
             simulator.runWithInstructionLogging(logger);
         }

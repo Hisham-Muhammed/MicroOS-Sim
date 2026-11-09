@@ -11,6 +11,8 @@ public class CoreSimulator {
     private CoreInstruction currentCoreInstruction;
     private String executionStatus;
     private StringBuilder executionTrace;
+    private String lastAlertMessage;
+    private String lastOperationDetails = "";
 
     // Makes SJMP execute only once in a program run.
     private boolean sjmpUsed;
@@ -23,6 +25,7 @@ public class CoreSimulator {
         queue = new CoreQueue(8);
         executionStatus = "Ready";
         executionTrace = new StringBuilder();
+        lastAlertMessage = "";
         sjmpUsed = false;
     }
 
@@ -64,6 +67,7 @@ public class CoreSimulator {
             return;
         }
 
+        lastOperationDetails = "";
         String name = currentCoreInstruction.getName();
         String operand = currentCoreInstruction.getOperand();
 
@@ -99,6 +103,14 @@ public class CoreSimulator {
 
                 case "ORL":
                     executeORL(operand);
+                    break;
+
+                case "XRL":
+                    executeXRL(operand);
+                    break;
+
+                case "ALERT":
+                    executeALERT(operand);
                     break;
 
                 case "INC":
@@ -327,6 +339,67 @@ public class CoreSimulator {
                 cpu.getA() | value);
     }
 
+    // XRL A,Rn or XRL A,#data (bitwise exclusive OR).
+    private void executeXRL(String operand) {
+        String[] parts = operand.split(",");
+        if (parts.length != 2 || !parts[0].trim().equalsIgnoreCase("A")) {
+            throw new IllegalArgumentException("XRL supports A,R0-R7 or A,#data");
+        }
+
+        String source = parts[1].trim().toUpperCase();
+        int value;
+        if (source.startsWith("#")) {
+            value = parseValue(source);
+        } else if (isRegister(source)) {
+            value = cpu.getRegister(registerNumber(source));
+        } else {
+            throw new IllegalArgumentException("XRL supports A,R0-R7 or A,#data");
+        }
+
+        cpu.setA(cpu.getA() ^ value);
+    }
+
+    // ALERT S1_REGISTER,S2_REGISTER,S4_REGISTER.
+    // XOR/syndrome calculations remain in assembly; this instruction only
+    // reports the syndrome in a readable form for the simulator UI.
+    private void executeALERT(String operand) {
+        String[] parts = operand.split(",");
+        if (parts.length < 3 || parts.length > 5) {
+            throw new IllegalArgumentException("ALERT requires 3 to 5 syndrome registers");
+        }
+
+        int errorPosition = 0;
+        for (int i = 0; i < parts.length; i++) {
+            int bit = readSyndromeBit(parts[i]);
+            errorPosition |= (bit << i);
+        }
+
+        StringBuilder syndrome = new StringBuilder();
+        for (int i = parts.length - 1; i >= 0; i--) {
+            syndrome.append((errorPosition >> i) & 1);
+        }
+
+        if (errorPosition == 0) {
+            lastAlertMessage = "ALERT: No error detected (syndrome " + syndrome + ").";
+        } else {
+            lastAlertMessage = "ALERT: Error detected at Hamming bit position "
+                    + errorPosition + " (syndrome " + syndrome + ").";
+        }
+        executionTrace.append(lastAlertMessage).append("\n");
+    }
+
+    private int readSyndromeBit(String registerOperand) {
+        String register = registerOperand.trim().toUpperCase();
+        if (!isRegister(register)) {
+            throw new IllegalArgumentException("ALERT operands must be R0-R7 registers");
+        }
+        int value = cpu.getRegister(registerNumber(register));
+        if (value != 0 && value != 1) {
+            throw new IllegalArgumentException("Syndrome registers must contain only 0 or 1");
+        }
+        return value;
+    }
+
     // INC A or INC Rn
     private void executeINC(String operand) {
 
@@ -385,6 +458,8 @@ public class CoreSimulator {
 
     // PUSH source: PUSH A, PUSH Rn, or PUSH #data
     private void executePUSH(String operand) {
+        int oldSP = cpu.getSP();
+        String before = stack.getState();
         String source = operand.trim().toUpperCase();
         int value;
         if (source.equals("A")) value = cpu.getA();
@@ -392,23 +467,34 @@ public class CoreSimulator {
         else if (source.startsWith("#")) value = parseValue(source);
         else throw new IllegalArgumentException("PUSH supports A, R0-R7 or #data");
         stack.push(value);
+        lastOperationDetails = "STACK PUSH value=" + String.format("%02X", value) +
+                " | SP " + String.format("%02X", oldSP) + " -> " + String.format("%02X", cpu.getSP()) +
+                "\nBefore:\n" + before + "After:\n" + stack.getState();
         executionTrace.append("PUSH -> ").append(String.format("%02X", value)).append(" (SP=")
                 .append(String.format("%02X", cpu.getSP())).append(")\n");
     }
 
     // POP destination: POP A or POP Rn
     private void executePOP(String operand) {
+        int oldSP = cpu.getSP();
+        String before = stack.getState();
         String destination = operand.trim().toUpperCase();
         int value = stack.pop();
         if (destination.equals("A")) cpu.setA(value);
         else if (isRegister(destination)) cpu.setRegister(registerNumber(destination), value);
         else throw new IllegalArgumentException("POP supports A or R0-R7");
+        lastOperationDetails = "STACK POP value=" + String.format("%02X", value) +
+                " | SP " + String.format("%02X", oldSP) + " -> " + String.format("%02X", cpu.getSP()) +
+                "\nBefore:\n" + before + "After:\n" + stack.getState();
         executionTrace.append("POP <- ").append(String.format("%02X", value)).append(" (SP=")
                 .append(String.format("%02X", cpu.getSP())).append(")\n");
     }
 
     // ENQUEUE source: ENQUEUE A, Rn, or #data
     private void executeENQUEUE(String operand) {
+        String before = queue.getState();
+        int oldFront = queue.getFrontIndex();
+        int oldRear = queue.getRearIndex();
         String source = operand.trim().toUpperCase();
         int value;
         if (source.equals("A")) value = cpu.getA();
@@ -416,17 +502,28 @@ public class CoreSimulator {
         else if (source.startsWith("#")) value = parseValue(source);
         else value = parseValue(source);
         queue.enqueue(value);
+        lastOperationDetails = "QUEUE ENQUEUE value=" + String.format("%02X", value) +
+                " | Front " + oldFront + " -> " + queue.getFrontIndex() +
+                " | Rear " + oldRear + " -> " + queue.getRearIndex() +
+                "\nBefore:\n" + before + "After:\n" + queue.getState();
         executionTrace.append("ENQUEUE -> ").append(String.format("%02X", value))
                 .append(" | CoreQueue size=").append(queue.size()).append("\n");
     }
 
     // DEQUEUE destination: DEQUEUE A or DEQUEUE Rn
     private void executeDEQUEUE(String operand) {
+        String before = queue.getState();
+        int oldFront = queue.getFrontIndex();
+        int oldRear = queue.getRearIndex();
         String destination = operand.trim().toUpperCase();
         int value = queue.dequeue();
         if (destination.equals("A")) cpu.setA(value);
         else if (isRegister(destination)) cpu.setRegister(registerNumber(destination), value);
         else throw new IllegalArgumentException("DEQUEUE supports A or R0-R7");
+        lastOperationDetails = "QUEUE DEQUEUE value=" + String.format("%02X", value) +
+                " | Front " + oldFront + " -> " + queue.getFrontIndex() +
+                " | Rear " + oldRear + " -> " + queue.getRearIndex() +
+                "\nBefore:\n" + before + "After:\n" + queue.getState();
         executionTrace.append("DEQUEUE <- ").append(String.format("%02X", value))
                 .append(" | CoreQueue size=").append(queue.size()).append("\n");
     }
@@ -552,6 +649,7 @@ public class CoreSimulator {
         currentCoreInstruction = null;
 
         executionTrace.setLength(0);
+        lastAlertMessage = "";
         stack.reset();
         queue.reset();
 
@@ -559,18 +657,32 @@ public class CoreSimulator {
         // whenever a new program is loaded.
         sjmpUsed = false;
 
+        int instructionIndex = 0;
         for (int i = 0; i < program.length; i++) {
-
-            if (program[i] != null
-                    && !program[i].trim().isEmpty()) {
-
-                instructionSet.createCoreInstruction(
-                        program[i]);
-
-                memory.writeCoreInstruction(
-                        i,
-                        program[i].trim());
+            if (program[i] == null) {
+                continue;
             }
+
+            String line = program[i].trim();
+
+            // Assembly comments begin with ';' or '//'.
+            int semicolon = line.indexOf(';');
+            int slashComment = line.indexOf("//");
+            int commentStart = -1;
+            if (semicolon >= 0) commentStart = semicolon;
+            if (slashComment >= 0 && (commentStart < 0 || slashComment < commentStart)) {
+                commentStart = slashComment;
+            }
+            if (commentStart >= 0) {
+                line = line.substring(0, commentStart).trim();
+            }
+
+            if (line.isEmpty()) {
+                continue;
+            }
+
+            instructionSet.createCoreInstruction(line);
+            memory.writeCoreInstruction(instructionIndex++, line);
         }
 
         executionStatus = "Program loaded";
@@ -586,6 +698,7 @@ public class CoreSimulator {
         currentCoreInstruction = null;
 
         executionTrace.setLength(0);
+        lastAlertMessage = "";
         stack.reset();
         queue.reset();
 
@@ -713,6 +826,9 @@ public class CoreSimulator {
         } else {
             view.append("FETCH -\nDECODE -\nEXECUTE -\n");
         }
+        if (lastAlertMessage != null && !lastAlertMessage.isEmpty()) {
+            view.append("\n").append(lastAlertMessage).append("\n");
+        }
         view.append("\nSTATUS : ").append(executionStatus);
         return view.toString();
     }
@@ -743,6 +859,22 @@ public class CoreSimulator {
 
     public String queueState() {
         return queue.getState();
+    }
+
+    public String lastOperationDetails() { return lastOperationDetails; }
+    public String lastAlertMessage() { return lastAlertMessage; }
+    public String memoryState() {
+        StringBuilder state = new StringBuilder("DATA MEMORY (non-zero addresses)\n");
+        boolean any = false;
+        for (int address = 0; address < 256; address++) {
+            int value = memory.readData(address);
+            if (value != 0) {
+                state.append(String.format("%02X=%02X ", address, value));
+                any = true;
+            }
+        }
+        if (!any) state.append("[all zero]");
+        return state.toString();
     }
 
     public void runWithInstructionLogging(java.util.function.Consumer<String> instructionLogger) {

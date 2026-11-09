@@ -1,0 +1,65 @@
+ERROR DETECTION – Meeting 02
+
+Date: 3 November 2026
+Meeting Number: 02
+Participants:  HISHAM, Izhan, Keora,  Punarvi
+
+Agenda
+
+1. Review the Hamming (7,4) implementation progress.
+2. Verify parity-bit generation and syndrome calculation.
+3. Discuss the Java implementation of XRL and ALERT instructions.
+4. Test error and no-error detection scenarios.
+5. Review the UI alert and final project integration.
+
+Discussion
+
+The team reviewed the Hamming (7,4) implementation and discussed how the assembly program works with the existing simulator.
+
+The following implementation details were reviewed:
+
+* Four data bits (D1, D2, D3, D4) are used as input.
+* Three parity bits (P1, P2, P4) are generated using XOR operations.
+* An intentional error is introduced to test error detection.
+* Syndrome bits (S1, S2, S4) are calculated to identify the error position.
+* The Java ALERT instruction displays the detection result in the UI.
+
+The team also reviewed two demonstration programs:
+
+* Hamming74Demo.asm: Tests error detection at bit position 3.
+* Hamming74NoError.asm: Tests the no-error condition.
+
+The expected outputs were discussed:
+
+* Error scenario: Syndrome 011 – Error detected at bit position 3.
+* No-error scenario: Syndrome 000 – No error detected.
+
+Decisions
+
+1. The assembly programs will use supported simulator instructions such as MOV, XRL, ALERT, and END.
+2. The Hamming calculations will remain in assembly rather than using special Hamming pseudo-instructions.
+3. Java will handle the required instruction execution and UI alert display.
+4. The existing Week 1–3 and Week 4 project structure must be preserved.
+5. The team will verify both test scenarios before finalizing the implementation.
+
+Action Items
+
+Student 1 — Hisham:
+
+Review the Hamming assembly programs and complete project integration.
+
+Student 2 — Izhan:
+
+Verify XRL and ALERT instruction execution and fix any instruction-related issues.
+
+Student 3 — Keora:
+
+Verify syndrome calculations and confirm the detected error position in both test scenarios.
+
+Student 4 — Punarvi:
+
+Verify the UI alert display, test the demonstration programs, and complete README documentation.
+
+Next Meeting
+
+The team will perform final testing, review the completed implementation, resolve any remaining issues, and prepare the project demonstration.

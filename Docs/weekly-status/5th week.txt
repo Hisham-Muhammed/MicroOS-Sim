@@ -1,0 +1,38 @@
+WEEK 5 STATUS REPORT — ERROR DETECTION
+
+Project: MicroOS-Sim
+Week: 5
+Meeting Dates: 2 November 2026 and 3 November 2026
+
+Planned Work
+
+1. Understand and implement the Hamming (7,4) error-detection algorithm.
+2. Integrate the Hamming algorithm into the existing MicroOS-Sim project.
+3. Support the required XRL and ALERT instructions in Java.
+4. Display the error-detection result through the UI.
+5. Test both error and no-error cases.
+
+Progress / Work Discussed
+
+1. The team decided to implement Hamming (7,4) using the simulator's assembly instructions.
+2. The algorithm uses four data bits (D1, D2, D3, D4) and three parity bits (P1, P2, P4).
+3. XOR operations are used for parity-bit generation and syndrome calculation.
+4. An intentional bit error is used in the error-detection demonstration.
+5. The Java simulator support for XRL and ALERT was reviewed.
+6. Two demonstration programs were reviewed: Hamming74Demo.asm and Hamming74NoError.asm.
+7. The expected results were discussed: syndrome 011 for an error at bit position 3, and syndrome 000 when no error is present.
+
+
+
+
+Issue / Consideration
+
+The Hamming algorithm must work with the existing simulator instruction set. The team agreed not to add special Hamming pseudo-instructions; the calculations will be written using supported assembly instructions.
+
+Individual Responsibilities
+
+- Hisham: Hamming assembly algorithm, project integration, and documentation.
+- Izhan: Java instruction support for XRL and ALERT.
+- Keora: Syndrome calculation, error-position identification, and testing.
+- Punarvi: UI alert implementation, output testing, and README documentation.
+
