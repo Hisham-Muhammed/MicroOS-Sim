@@ -47,7 +47,6 @@ Three processes, connected by Java TCP sockets over localhost:
 
 The UI sends commands to the Core over its socket and receives the resulting state and trace back; the Core forwards log messages to the Logging process. The UI never calls CPU, Memory, Stack, Queue, Simulator or Logger classes directly.
 
-![System Architecture](images/architecture.png)
 
 ---
 
